@@ -1,0 +1,27 @@
+title: "Jay's AI Learning Blog"
+description: "Real questions, real answers. Learning AI concepts through conversation."
+baseurl: ""
+url: "https://seah-js.github.io"
+
+theme: minima
+
+author:
+  name: Jay
+  url: https://github.com/seah-js
+
+header_pages:
+  - architecture.md
+  - agents.md
+  - infra.md
+  - frameworks.md
+  - about.md
+
+markdown: kramdown
+permalink: /:categories/:title/
+
+defaults:
+  - scope:
+      path: "_posts"
+      type: "posts"
+    values:
+      layout: "post"
