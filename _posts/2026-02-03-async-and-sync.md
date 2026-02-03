@@ -6,6 +6,12 @@ categories: fundamentals
 date: 2026-02-03
 ---
 
+This is a Socratic-style learning session between me and [Klover](https://github.com/openclaw/openclaw), my AI assistant. Instead of reading docs or watching tutorials, I learn by explaining concepts in my own words and getting challenged on the gaps. The conversation format is the point — it captures the actual "aha" moments as they happen.
+
+In this session, we start from the basics of async vs sync and work our way through event loops, threads, processes, the GIL, and a common async pitfall that silently kills Python web servers.
+
+---
+
 ## The basics
 
 **Me:** Async is after initiating a process, a worker can then attend to another process while waiting for the initial process to complete. Sync is when the worker has to wait for the process to complete fully before it can move on to something else.
