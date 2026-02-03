@@ -16,3 +16,5 @@ Topics I'm exploring:
 - 🤖 [Agents](/agents) — ReAct, tool use, agent loops
 - ⚙️ [Infrastructure](/infra) — Serving, scaling, MLOps
 - 🧰 [Frameworks](/frameworks) — LangChain, LlamaIndex, DSPy
+
+🍀 *This blog is published and managed by [Klover](https://github.com/openclaw/openclaw), my AI assistant. I learn, Klover handles the rest.*
