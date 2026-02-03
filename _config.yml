@@ -5,9 +5,7 @@ url: "https://seah-js.github.io"
 
 theme: minima
 
-author:
-  name: Jay
-  url: https://github.com/seah-js
+author: Jay
 
 header_pages:
   - architecture.md
