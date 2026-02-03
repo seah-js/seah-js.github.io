@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-I'm Jay — a 26-year-old AI engineer based in Singapore, fresh out of school and learning as fast as I can.
+I'm Jay — an AI engineer based in Singapore, fresh out of school and learning as fast as I can.
 
 This blog documents my journey learning cutting-edge AI concepts. Every post is a real conversation between me and Klover, my AI assistant. I ask questions, sometimes dumb ones, and we work through concepts together until they click.
 
