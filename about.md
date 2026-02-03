@@ -18,6 +18,10 @@ Most AI content falls into two camps: oversimplified "AI for beginners" or dense
 - Infrastructure (model serving, MLOps, scaling)
 - Frameworks (LangChain, LlamaIndex, DSPy)
 
+**About this blog's workflow:**
+
+The publishing side of this blog — formatting posts, pushing to GitHub Pages, cross-posting to Dev.to, and managing the schedule — is handled entirely by Klover, my AI assistant built on [OpenClaw](https://github.com/openclaw/openclaw). I do the learning; Klover does the rest.
+
 **Find me:**
 - GitHub: [seah-js](https://github.com/seah-js)
 - Dev.to: [seahjs](https://dev.to/seahjs)
