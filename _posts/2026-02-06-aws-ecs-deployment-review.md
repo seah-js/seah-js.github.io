@@ -10,89 +10,92 @@ Review session with [Klover](https://github.com/openclaw/openclaw). Testing reca
 
 ---
 
-## What I Recalled
+## The Recall Test
 
-**Klover:** Walk me through the flow from `git push` to a user hitting your API.
+**Klover:** Walk me through the flow from `git push` to a user hitting your API. What are the key AWS services involved?
 
-**Me:** After git push, CI/CD builds the image and pushes to ECR, then deployed via ECS. Fargate is where you configure system requirements. ALB routes containers to speak to one another. There's some kind of task system.
+**Me:** After git push, if you set up CI/CD, the image will be pushed to AWS ECR, then deployed via ECS. After that I don't remember well. I know there's Fargate where you configure system requirements, ALB which routes containers to speak to one another, and some kind of task system.
 
-Verdict: got the big picture, but fuzzy on half the details.
-
----
-
-## What Stuck ✅
-
-- **ECR → ECS pipeline** — the overall flow is solid
-- **Task Definition = blueprint, Task = running container** — same relationship as Docker image vs running container
-- **Fargate = serverless** — AWS manages the infrastructure
+**Klover:** Good start — you've got the big picture. But let's untangle the ECS side because you're mixing a few things.
 
 ---
 
-## What Didn't Stick ❌
+## Task Definition vs Task
 
-### Services
+**Klover:** You mentioned "task system or something." What do you think a Task Definition actually is? Think blueprint vs running thing.
 
-Couldn't remember what a Service does at all.
+**Me:** Task Definition is the blueprint for the actual running of the containers? What settings for this service and everything like that.
 
-**The answer:** A Service maintains your **desired task count**. If you say "keep 3 running" and one crashes, the Service launches a replacement. It also handles rolling deployments — gradually replacing old tasks with new ones during updates.
+**Klover:** Yes. Task Definition = blueprint. It defines which Docker image, how much CPU/memory, environment variables, port mappings, secrets. The actual running instance of that blueprint is called a **Task**.
 
-**Hierarchy:**
-```
-Task Definition (blueprint)
-       ↓
-Service (manager — maintains desired count)
-       ↓
-Tasks (running containers)
-```
+**Me:** So is it accurate to say the Task is the running of the container, with configurations defined in the Task Definition?
 
-### ALB + Target Groups
+**Klover:** Exactly. Same relationship as a Docker image vs a running Docker container.
 
-I said ALB "routes containers to speak to one another." Wrong.
+---
 
-**The answer:** ALB sits between **users and your containers**. Users hit the ALB, ALB routes to healthy tasks. You need this because tasks are ephemeral — IPs change constantly. ALB gives you one stable URL.
+## The Service — What I Forgot
 
-Target Group = the registry of currently healthy tasks that ALB routes to.
+**Klover:** What does an ECS Service do?
 
-### Crash Loop Behavior
+**Me:** I don't know.
 
-**Klover:** What happens if you push a broken image?
+**Klover:** What happens if your Task crashes? It's just dead. Nobody restarts it. That's what a **Service** does — it says "I want 3 Tasks running at all times." If one dies, the Service launches a replacement. It also handles rolling deployments.
 
-**Me:** The Service retries, and if it doesn't work, it reverts to the previous task definition.
+**The hierarchy:** Task Definition (blueprint) → Service (manager) → Tasks (running containers)
 
-**Wrong.** The Service is persistent but **not smart**. It sees the task crash, launches another from the same broken definition, that crashes too, and it loops — a **crash loop**. It does NOT auto-rollback.
+---
 
-You have to intervene manually: fix the image or update the Service to use the old Task Definition.
+## Crash Loop — My Wrong Assumption
 
-**Mitigation:** Rolling deployments with health checks. New tasks must pass health checks before old ones are killed. Doesn't "revert" — just stops the rollout and keeps old tasks running.
+**Klover:** If you push a broken image that crashes on startup, what happens?
+
+**Me:** It will retry, and if it doesn't work, it will revert to the previous successful task definition.
+
+**Klover:** Close but not quite — it's actually dumber than that. The Service sees the crash, launches a new one from the **same broken definition**. That crashes too. It tries again. And again. This is a **crash loop**.
+
+It does NOT auto-rollback. The Service only knows "maintain desired count." You have to intervene manually.
+
+**Mitigation:** Rolling deployments with health checks. New tasks must pass health checks before old ones are killed. Doesn't "revert" — just stops the rollout.
+
+**Key takeaway:** The Service is persistent but not smart.
+
+---
+
+## ALB — What I Got Wrong
+
+**Me:** ALB routes containers to speak to one another.
+
+**Klover:** Not quite. ALB sits between **users and your containers**. Users hit the ALB, ALB routes traffic to healthy Tasks. Two reasons you need this middleman:
+
+1. Tasks are ephemeral — they get replaced, scale up/down, IPs change
+2. ALB gives you a **stable endpoint** (one URL) that always works
+
+There's a **Target Group** between ALB and Tasks — a registry of currently healthy tasks that ALB routes to.
 
 ---
 
 ## Serverless ≠ No Servers
 
-I asked: isn't EC2 also using AWS infra? Why is Fargate "serverless"?
+**Me:** Regarding Fargate, I don't understand what "serverless" means. Isn't EC2 also using AWS infra?
 
-The difference is **who manages the servers**:
+**Klover:** "Serverless" is confusing because obviously there ARE servers. The difference is who manages them:
 
-- **EC2:** AWS gives you a VM. You manage it — capacity, patches, disk space, scaling rules.
-- **Fargate:** You never see a machine. Just declare CPU/memory needs. AWS handles placement.
+- **EC2:** AWS gives you a VM. You manage capacity, patches, disk space, scaling.
+- **Fargate:** You never see a machine. Just say "I need 0.5 vCPU and 1GB RAM." AWS figures out the rest.
 
-Analogy:
+Think of it like:
 - EC2 = renting an apartment (you fix the plumbing)
 - Fargate = hotel room (they handle everything)
 
-"Serverless" means you don't manage servers, not that servers don't exist.
-
-**Tradeoff:** Fargate costs more per compute unit, but saves ops effort. For most apps, worth it.
+Both use AWS infra. "Serverless" means you don't manage servers — not that servers don't exist.
 
 ---
 
-## Self-Assessment
+## Self-Assessment: 2.7/5
 
-**Rating: 2.7/5**
+**Solid on:** ECR → ECS pipeline, Task Definition = blueprint, Fargate = serverless.
 
-The overall pipeline is there, but I need more reps on:
-- Service role and behavior
-- ALB / Target Group relationship
-- Fargate vs EC2 at a deeper level
+**Fuzzy on:** ALB/Target Groups, Services, crash loop behavior, serverless meaning.
 
-Staying at **exposure** level. Reviewing again tomorrow.
+Staying at exposure. Review again tomorrow.
