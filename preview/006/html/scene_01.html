@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1920">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scene 01 — Series Intro</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
@@ -52,12 +52,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
     <stop offset="50%" stop-color="#f97316"/>
     <stop offset="100%" stop-color="#e8ecf4"/>
   </linearGradient>
-  <!-- Curved decision boundary gradient -->
   <linearGradient id="curveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
     <stop offset="0%" stop-color="#3b82f6"/>
     <stop offset="50%" stop-color="#8b5cf6"/>
     <stop offset="100%" stop-color="#06b6d4"/>
   </linearGradient>
+  <!-- Glow filter for data flow dots -->
+  <filter id="flowDotGlow" x="-200%" y="-200%" width="500%" height="500%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
 </defs>
 
 <!-- OBS background -->
@@ -82,30 +86,61 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
     <!-- Backdrop panel -->
     <rect x="-320" y="-200" width="640" height="420" rx="16" fill="#151d30" opacity="0.4"/>
 
+    <!-- Grid lines for scatter plot structure -->
+    <g id="scatterGrid" opacity="0">
+      <!-- Vertical grid lines -->
+      <line x1="-240" y1="-180" x2="-240" y2="200" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <line x1="-120" y1="-180" x2="-120" y2="200" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <line x1="0" y1="-180" x2="0" y2="200" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <line x1="120" y1="-180" x2="120" y2="200" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <line x1="240" y1="-180" x2="240" y2="200" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <!-- Horizontal grid lines -->
+      <line x1="-260" y1="-120" x2="260" y2="-120" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <line x1="-260" y1="-40" x2="260" y2="-40" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <line x1="-260" y1="40" x2="260" y2="40" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <line x1="-260" y1="120" x2="260" y2="120" stroke="#4a5568" stroke-width="1" opacity="0.15"/>
+      <!-- Axis lines (stronger) -->
+      <line x1="-260" y1="0" x2="260" y2="0" stroke="#4a5568" stroke-width="1.5" opacity="0.25"/>
+      <line x1="0" y1="-180" x2="0" y2="200" stroke="#4a5568" stroke-width="1.5" opacity="0.25"/>
+      <!-- Axis tick marks -->
+      <line x1="-240" y1="-3" x2="-240" y2="3" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+      <line x1="-120" y1="-3" x2="-120" y2="3" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+      <line x1="120" y1="-3" x2="120" y2="3" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+      <line x1="240" y1="-3" x2="240" y2="3" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+      <line x1="-3" y1="-120" x2="3" y2="-120" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+      <line x1="-3" y1="-40" x2="3" y2="-40" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+      <line x1="-3" y1="40" x2="3" y2="40" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+      <line x1="-3" y1="120" x2="3" y2="120" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+    </g>
+
     <!-- Decision scatter plot area -->
-    <!-- Line equation: y = -200/480 * x + (-120+80)/2 = -0.417x - 20 -->
-    <!-- Green dots BELOW the line (higher y), Blue dots ABOVE (lower y) -->
+    <!-- Line equation in local coords: y = -0.417*x - 20 -->
+    <!-- At x=-240: y = 100-20=80. At x=240: y=-100-20=-120 -->
+    <!-- Green dots BELOW line (higher y values), Blue dots ABOVE (lower y values) -->
     <g id="scatterArea">
       <!-- Straight decision line -->
-      <line id="straightLine" x1="-240" y1="80" x2="240" y2="-120" stroke="#f97316" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+      <line id="straightLine" x1="-240" y1="80" x2="240" y2="-120" stroke="#f97316" stroke-width="3" stroke-linecap="round" opacity="0"/>
 
-      <!-- Data points - below line (green) -->
-      <circle class="dotGreen" cx="-180" cy="110" r="7" fill="#10b981" opacity="0.8"/>
-      <circle class="dotGreen" cx="-120" cy="100" r="7" fill="#10b981" opacity="0.8"/>
-      <circle class="dotGreen" cx="-60" cy="80" r="7" fill="#10b981" opacity="0.8"/>
-      <circle class="dotGreen" cx="0" cy="60" r="7" fill="#10b981" opacity="0.8"/>
-      <circle class="dotGreen" cx="60" cy="50" r="7" fill="#10b981" opacity="0.8"/>
-      <circle class="dotGreen" cx="-140" cy="140" r="7" fill="#10b981" opacity="0.8"/>
-      <circle class="dotGreen" cx="-30" cy="100" r="7" fill="#10b981" opacity="0.8"/>
+      <!-- Data points - BELOW the line (green) → must have y > (-0.417*x - 20) -->
+      <circle class="dotGreen" cx="-200" cy="130" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="-140" cy="110" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="-80" cy="70" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="-20" cy="50" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="40" cy="30" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="100" cy="10" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="-160" cy="150" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="-40" cy="90" r="8" fill="#10b981" opacity="0"/>
+      <circle class="dotGreen" cx="60" cy="50" r="8" fill="#10b981" opacity="0"/>
 
-      <!-- Data points - above line (blue) -->
-      <circle class="dotBlue" cx="-160" cy="-20" r="7" fill="#3b82f6" opacity="0.8"/>
-      <circle class="dotBlue" cx="-100" cy="-40" r="7" fill="#3b82f6" opacity="0.8"/>
-      <circle class="dotBlue" cx="-40" cy="-60" r="7" fill="#3b82f6" opacity="0.8"/>
-      <circle class="dotBlue" cx="40" cy="-80" r="7" fill="#3b82f6" opacity="0.8"/>
-      <circle class="dotBlue" cx="120" cy="-100" r="7" fill="#3b82f6" opacity="0.8"/>
-      <circle class="dotBlue" cx="180" cy="-130" r="7" fill="#3b82f6" opacity="0.8"/>
-      <circle class="dotBlue" cx="80" cy="-50" r="7" fill="#3b82f6" opacity="0.8"/>
+      <!-- Data points - ABOVE the line (blue) → must have y < (-0.417*x - 20) -->
+      <circle class="dotBlue" cx="-200" cy="-20" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="dotBlue" cx="-140" cy="-30" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="dotBlue" cx="-80" cy="-50" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="dotBlue" cx="0" cy="-60" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="dotBlue" cx="80" cy="-90" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="dotBlue" cx="160" cy="-120" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="dotBlue" cx="200" cy="-140" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="dotBlue" cx="-60" cy="-30" r="8" fill="#3b82f6" opacity="0"/>
     </g>
 
     <!-- Single neuron node -->
@@ -122,8 +157,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
   <!-- ── Network expansion group (appears during sentence 3+4) ── -->
   <g id="networkGroup" transform="translate(960, 480)">
 
-    <!-- Network connections (drawn between nodes) -->
-    <!-- Layer 1 to Layer 2 connections -->
+    <!-- Network connections (line elements for visual) -->
+    <!-- Layer 1 to Layer 2 -->
     <line class="netConn l12" x1="-400" y1="-80" x2="-120" y2="-140" stroke="#3b82f6" stroke-width="2" opacity="0"/>
     <line class="netConn l12" x1="-400" y1="-80" x2="-120" y2="-40" stroke="#3b82f6" stroke-width="2" opacity="0"/>
     <line class="netConn l12" x1="-400" y1="-80" x2="-120" y2="60" stroke="#3b82f6" stroke-width="2" opacity="0"/>
@@ -134,7 +169,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
     <line class="netConn l12" x1="-400" y1="80" x2="-120" y2="-40" stroke="#3b82f6" stroke-width="2" opacity="0"/>
     <line class="netConn l12" x1="-400" y1="80" x2="-120" y2="60" stroke="#3b82f6" stroke-width="2" opacity="0"/>
 
-    <!-- Layer 2 to Layer 3 connections -->
+    <!-- Layer 2 to Layer 3 -->
     <line class="netConn l23" x1="-120" y1="-140" x2="120" y2="-100" stroke="#8b5cf6" stroke-width="2" opacity="0"/>
     <line class="netConn l23" x1="-120" y1="-140" x2="120" y2="0" stroke="#8b5cf6" stroke-width="2" opacity="0"/>
     <line class="netConn l23" x1="-120" y1="-140" x2="120" y2="100" stroke="#8b5cf6" stroke-width="2" opacity="0"/>
@@ -145,13 +180,27 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
     <line class="netConn l23" x1="-120" y1="60" x2="120" y2="0" stroke="#8b5cf6" stroke-width="2" opacity="0"/>
     <line class="netConn l23" x1="-120" y1="60" x2="120" y2="100" stroke="#8b5cf6" stroke-width="2" opacity="0"/>
 
-    <!-- Layer 3 to Output connections -->
+    <!-- Layer 3 to Output -->
     <line class="netConn l3o" x1="120" y1="-100" x2="380" y2="-20" stroke="#06b6d4" stroke-width="2" opacity="0"/>
     <line class="netConn l3o" x1="120" y1="0" x2="380" y2="-20" stroke="#06b6d4" stroke-width="2" opacity="0"/>
     <line class="netConn l3o" x1="120" y1="100" x2="380" y2="-20" stroke="#06b6d4" stroke-width="2" opacity="0"/>
     <line class="netConn l3o" x1="120" y1="-100" x2="380" y2="60" stroke="#06b6d4" stroke-width="2" opacity="0"/>
     <line class="netConn l3o" x1="120" y1="0" x2="380" y2="60" stroke="#06b6d4" stroke-width="2" opacity="0"/>
     <line class="netConn l3o" x1="120" y1="100" x2="380" y2="60" stroke="#06b6d4" stroke-width="2" opacity="0"/>
+
+    <!-- Hidden path elements for MotionPathPlugin data flow -->
+    <!-- Layer 1→2: 3 representative paths -->
+    <path id="flowPath_l12_a" d="M-400,-80 L-120,-140" fill="none" stroke="none"/>
+    <path id="flowPath_l12_b" d="M-400,0 L-120,-40" fill="none" stroke="none"/>
+    <path id="flowPath_l12_c" d="M-400,80 L-120,60" fill="none" stroke="none"/>
+    <!-- Layer 2→3: 3 representative paths -->
+    <path id="flowPath_l23_a" d="M-120,-140 L120,-100" fill="none" stroke="none"/>
+    <path id="flowPath_l23_b" d="M-120,-40 L120,0" fill="none" stroke="none"/>
+    <path id="flowPath_l23_c" d="M-120,60 L120,100" fill="none" stroke="none"/>
+    <!-- Layer 3→Output: 3 representative paths -->
+    <path id="flowPath_l3o_a" d="M120,-100 L380,-20" fill="none" stroke="none"/>
+    <path id="flowPath_l3o_b" d="M120,0 L380,60" fill="none" stroke="none"/>
+    <path id="flowPath_l3o_c" d="M120,100 L380,-20" fill="none" stroke="none"/>
 
     <!-- Layer 1: Input nodes (3) -->
     <g id="layer1">
@@ -195,26 +244,59 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
     </g>
     <text id="layerLabelOut" x="380" y="130" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="20" font-weight="300" fill="#8892a8" opacity="0">Output</text>
 
-    <!-- Curved decision boundary (replaces the straight line concept) -->
-    <g id="curvedBoundary">
-      <path id="curvePath" d="M-460,260 C-380,200 -280,340 -160,240 S40,180 160,280 S340,200 460,260" stroke="url(#curveGrad)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0"/>
-      <!-- Scatter dots — green BELOW curve, blue ABOVE curve -->
-      <!-- Curve goes roughly: y≈220 at x=-400, y≈300 at x=-280, y≈240 at x=-160, y≈200 at x=0, y≈280 at x=160, y≈220 at x=340, y≈260 at x=460 -->
-      <circle class="curveDotG" cx="-380" cy="290" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="-280" cy="350" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="-150" cy="300" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="-40" cy="270" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="100" cy="320" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="240" cy="310" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="380" cy="310" r="8" fill="#10b981" opacity="0"/>
+    <!-- Data flow dots (animated with MotionPathPlugin) -->
+    <circle class="flowDot flowDot12" r="5" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot12" r="5" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot12" r="5" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot23" r="5" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot23" r="5" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot23" r="5" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot3o" r="5" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot3o" r="5" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot flowDot3o" r="5" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
 
+    <!-- Curved decision boundary -->
+    <g id="curvedBoundary">
+      <!-- Grid lines for curve scatter -->
+      <g id="curveGrid" opacity="0">
+        <line x1="-460" y1="180" x2="460" y2="180" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="-460" y1="230" x2="460" y2="230" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="-460" y1="280" x2="460" y2="280" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="-460" y1="330" x2="460" y2="330" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="-360" y1="150" x2="-360" y2="380" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="-200" y1="150" x2="-200" y2="380" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="-40" y1="150" x2="-40" y2="380" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="120" y1="150" x2="120" y2="380" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="280" y1="150" x2="280" y2="380" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+        <line x1="440" y1="150" x2="440" y2="380" stroke="#4a5568" stroke-width="1" opacity="0.12"/>
+      </g>
+
+      <!-- The curve path -->
+      <path id="curvePath" d="M-460,260 C-380,200 -280,340 -160,240 S40,180 160,280 S340,200 460,260" stroke="url(#curveGrad)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0"/>
+
+      <!-- Scatter dots — positioned carefully relative to the curve -->
+      <!-- Curve approximate y values: x=-400→y≈220, x=-280→y≈300, x=-160→y≈240, x=0→y≈200, x=160→y≈280, x=340→y≈220, x=460→y≈260 -->
+      <!-- Green dots BELOW curve (higher y) -->
+      <circle class="curveDotG" cx="-380" cy="280" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-280" cy="350" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-160" cy="300" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-40" cy="260" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="100" cy="330" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="240" cy="290" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="380" cy="310" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-200" cy="330" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="160" cy="340" r="8" fill="#10b981" opacity="0"/>
+
+      <!-- Blue dots ABOVE curve (lower y) -->
       <circle class="curveDotR" cx="-400" cy="170" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="-260" cy="230" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="-120" cy="190" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="30" cy="150" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="-280" cy="240" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="-160" cy="190" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="0" cy="160" r="8" fill="#3b82f6" opacity="0"/>
       <circle class="curveDotR" cx="160" cy="220" r="8" fill="#3b82f6" opacity="0"/>
       <circle class="curveDotR" cx="320" cy="170" r="8" fill="#3b82f6" opacity="0"/>
       <circle class="curveDotR" cx="440" cy="210" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="-100" cy="180" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="80" cy="200" r="8" fill="#3b82f6" opacity="0"/>
     </g>
 
     <!-- Network title label -->
@@ -237,17 +319,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
   <!-- Traveling pulse dot -->
   <circle id="roadmapPulse" cx="200" cy="430" r="6" fill="#f97316" opacity="0"/>
 
-  <!-- Part 1 — completed (checkmark, dimmed) -->
+  <!-- Part 1 — completed -->
   <g id="dot1" class="roadDot">
     <circle cx="200" cy="430" r="18" fill="#151d30" stroke="#4a5568" stroke-width="2.5"/>
     <circle cx="200" cy="430" r="8" fill="#4a5568" opacity="0.5"/>
-    <!-- Checkmark -->
     <path d="M190,430 L197,438 L212,422" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     <text x="200" y="420" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#4a5568" dy="-24">1</text>
     <text x="200" y="490" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="20" font-weight="300" fill="#4a5568">Neuron</text>
   </g>
 
-  <!-- Part 2 — active (glowing orange) -->
+  <!-- Part 2 — active -->
   <g id="dot2" class="roadDot">
     <circle cx="369" cy="430" r="22" fill="#151d30" stroke="#f97316" stroke-width="3" filter="url(#dotGlow)"/>
     <circle cx="369" cy="430" r="10" fill="#f97316" opacity="0.7"/>
@@ -326,12 +407,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
 gsap.registerPlugin(MotionPathPlugin);
 
 // ── Subtitle engine ──
-// Line 1: 0-14930ms, 38 words total -> ~393ms/word
-// S1: "A single neuron draws a straight line." (7w) -> 0-2751
-// S2: "That's useful, but limited." (4w) -> 2751-4323
-// S3: "What happens when you connect thousands of them?" (8w) -> 4323-7465
-// S4: "The lines start combining into curves, surfaces, and boundaries complex enough to recognize a face or understand a sentence." (19w) -> 7465-14930
-// Line 2: 16231-21780ms (single sentence)
 var T0 = performance.now();
 var subs = [
   {"start": 0, "end": 2751, "text": "A single neuron draws a straight line."},
@@ -361,8 +436,9 @@ gsap.set("#subtitleGroup", { opacity: 0, y: 10 });
 
 // Phase 1: single neuron group
 gsap.set("#singleNeuronGroup", { opacity: 0 });
-gsap.set(".dotGreen", { opacity: 0, scale: 0.5 });
-gsap.set(".dotBlue", { opacity: 0, scale: 0.5 });
+gsap.set("#scatterGrid", { opacity: 0 });
+gsap.set(".dotGreen", { opacity: 0, scale: 0 });
+gsap.set(".dotBlue", { opacity: 0, scale: 0 });
 gsap.set("#straightLine", { opacity: 0 });
 gsap.set("#singleNeuron", { opacity: 0, scale: 0.85 });
 gsap.set("#snGlow", { opacity: 0 });
@@ -380,8 +456,10 @@ gsap.set("#layerLabel3", { opacity: 0 });
 gsap.set("#layerLabelOut", { opacity: 0 });
 gsap.set(".netConn", { opacity: 0 });
 gsap.set("#networkLabel", { opacity: 0, y: 10 });
-gsap.set(".curveDotG", { opacity: 0, scale: 0.5 });
-gsap.set(".curveDotR", { opacity: 0, scale: 0.5 });
+gsap.set(".curveDotG", { opacity: 0, scale: 0 });
+gsap.set(".curveDotR", { opacity: 0, scale: 0 });
+gsap.set("#curveGrid", { opacity: 0 });
+gsap.set(".flowDot", { opacity: 0 });
 
 // Phase 2
 gsap.set("#phase2", { opacity: 0 });
@@ -402,15 +480,15 @@ gsap.set("#dot10", { opacity: 0, y: 12 });
 gsap.set("#hereArrow", { opacity: 0, y: 8 });
 gsap.set("#roadmapPulse", { opacity: 0 });
 
-// ── Measure and set curvePath dash ──
+// ── Measure and set curvePath dash using JS getTotalLength ──
 var curveEl = document.getElementById('curvePath');
 var curveLen = curveEl.getTotalLength();
 gsap.set("#curvePath", { strokeDasharray: curveLen, strokeDashoffset: curveLen });
 
-// ── Ambient animations ──
+// ── Ambient animations (infinite, independent of timeline) ──
 // Single neuron core breathing
 gsap.to("#snCore", {
-  attr: { r: 10.5 }, opacity: 0.9,
+  attr: { r: 11 }, opacity: 0.9,
   duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1
 });
 
@@ -420,12 +498,47 @@ gsap.to("#dot2 circle:nth-child(2)", {
   yoyo: true, repeat: -1, delay: 16
 });
 
+// Network node breathing (layer 2 hidden nodes)
+gsap.to("#layer2 circle:nth-child(1)", {
+  attr: { r: 21.5 }, duration: 2.2, ease: "sine.inOut",
+  yoyo: true, repeat: -1, delay: 5
+});
+gsap.to("#layer2 circle:nth-child(3)", {
+  attr: { r: 21.5 }, duration: 2.5, ease: "sine.inOut",
+  yoyo: true, repeat: -1, delay: 5.5
+});
+gsap.to("#layer2 circle:nth-child(5)", {
+  attr: { r: 21.5 }, duration: 2.0, ease: "sine.inOut",
+  yoyo: true, repeat: -1, delay: 6
+});
+
+// Curved boundary gentle shimmer
+gsap.to("#curvePath", {
+  opacity: 0.7, duration: 2.0, ease: "sine.inOut",
+  yoyo: true, repeat: -1, delay: 10
+});
+
+// ── Helper: animate a single data flow dot along a path ──
+function flowBurst(dotSelector, pathId, startTime, duration) {
+  var dots = document.querySelectorAll(dotSelector);
+  var idx = 0;
+  dots.forEach(function(dot) {
+    tl.set(dot, { opacity: 0.9 }, startTime + idx * 0.12)
+      .to(dot, {
+        motionPath: { path: "#" + pathId.replace("IDX", String.fromCharCode(97 + idx)), align: "#" + pathId.replace("IDX", String.fromCharCode(97 + idx)), alignOrigin: [0.5, 0.5] },
+        duration: duration,
+        ease: "power1.in"
+      }, startTime + idx * 0.12)
+      .set(dot, { opacity: 0 }, startTime + idx * 0.12 + duration);
+    idx++;
+  });
+}
+
 // ── Master timeline ──
 var tl = gsap.timeline();
 
 // =====================================================
 // SUB 1 [0-2.75s]: "A single neuron draws a straight line."
-// Visual: Title appears, single neuron + scatter + straight line
 // =====================================================
 
 // Title materializes
@@ -438,135 +551,184 @@ tl.to("#titleGroup", { opacity: 1, duration: 0.01 }, 0.2)
 // Single neuron group fades in
   .to("#singleNeuronGroup", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.8)
 
+// Grid lines appear (subtle grounding)
+  .to("#scatterGrid", { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.9)
+
 // Neuron node appears
   .to("#singleNeuron", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 1.0)
   .to("#snGlow", { opacity: 0.7, duration: 0.4, ease: "power2.out" }, 1.2)
 
 // Scatter dots appear in stagger
-  .to(".dotGreen", { opacity: 0.8, scale: 1, duration: 0.3, ease: "power2.out", stagger: 0.06 }, 1.4)
-  .to(".dotBlue", { opacity: 0.8, scale: 1, duration: 0.3, ease: "power2.out", stagger: 0.06 }, 1.5)
+  .to(".dotGreen", { opacity: 0.8, scale: 1, duration: 0.35, ease: "back.out(1.3)", stagger: 0.05 }, 1.3)
+  .to(".dotBlue", { opacity: 0.8, scale: 1, duration: 0.35, ease: "back.out(1.3)", stagger: 0.05 }, 1.4)
 
-// Straight decision line draws in
+// Straight decision line draws in (using dashoffset technique)
   .to("#straightLine", { opacity: 0.9, duration: 0.01 }, 2.0)
-  .to("#straightLine", { attr: { x1: -240, y1: 80, x2: 240, y2: -120 }, duration: 0.6, ease: "power1.inOut" }, 2.0)
+  .fromTo("#straightLine",
+    { attr: { x2: -240, y2: 80 } },
+    { attr: { x2: 240, y2: -120 }, duration: 0.6, ease: "power1.inOut" }, 2.0)
 
 // =====================================================
 // SUB 2 [2.75-4.32s]: "That's useful, but limited."
-// Visual: Label appears, line pulses briefly
 // =====================================================
 
   .to("#oneNeuronLabel", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 2.8)
 
-// Pulse the straight line to emphasize "limited"
+// Pulse the line red briefly to emphasize "limited"
   .to("#straightLine", { stroke: "#ef4444", duration: 0.3, ease: "power2.in" }, 3.5)
   .to("#straightLine", { stroke: "#f97316", duration: 0.5, ease: "power2.out" }, 3.8)
 
 // =====================================================
-// SUB 3 [4.32-7.47s]: "What happens when you connect thousands of them?"
-// Visual: Single neuron fades, network structure appears
+// SUB 3 [4.32-7.47s]: "What happens when you connect thousands?"
+// Neuron "splits" outward → network appears from its position
 // =====================================================
 
-// Fade out single neuron scene
-  .to("#singleNeuronGroup", { opacity: 0, duration: 0.6, ease: "power2.inOut" }, 4.3)
+// Single neuron pulses bright before splitting
+  .to("#snGlow", { opacity: 1, attr: { r: 80 }, duration: 0.4, ease: "power2.out" }, 4.3)
+  .to("#snBody", { attr: { r: 28 }, duration: 0.3, ease: "power2.out" }, 4.3)
 
-// Network group appears
+// Scatter and label fade out
+  .to("#scatterArea", { opacity: 0, duration: 0.4, ease: "power2.in" }, 4.4)
+  .to("#oneNeuronLabel", { opacity: 0, duration: 0.3 }, 4.4)
+  .to("#scatterGrid", { opacity: 0, duration: 0.3 }, 4.4)
+
+// The neuron body shrinks and fades as the network group appears
+  .to("#singleNeuron", { opacity: 0, scale: 2, duration: 0.5, ease: "power2.in" }, 4.6)
+  .to("#singleNeuronGroup", { opacity: 0, duration: 0.01 }, 5.1)
+
+// Network group appears from center, expanding outward
   .to("#networkGroup", { opacity: 1, duration: 0.01 }, 4.9)
 
-// Title dims a bit to let network be the focus
+// Title dims to let network be the focus
   .to("#mainTitle", { opacity: 0.5, duration: 0.4, ease: "power2.out" }, 5.0)
 
-// Layer 1 nodes appear
-  .to("#layer1 circle", { opacity: 1, duration: 0.3, ease: "power2.out", stagger: 0.08 }, 5.0)
+// Layer 1 nodes appear (emanating from center)
+  .fromTo("#layer1 circle", { scale: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.4)", stagger: 0.06 }, 5.0)
   .to("#layerLabel1", { opacity: 0.7, duration: 0.3, ease: "power2.out" }, 5.3)
 
-// Connections layer 1->2
-  .to(".l12", { opacity: 0.35, duration: 0.4, ease: "power2.out", stagger: 0.03 }, 5.4)
+// Connections layer 1→2 trace in
+  .to(".l12", { opacity: 0.35, duration: 0.4, ease: "power2.out", stagger: 0.02 }, 5.4)
 
 // Layer 2 nodes appear
-  .to("#layer2 circle", { opacity: 1, duration: 0.3, ease: "power2.out", stagger: 0.08 }, 5.6)
+  .fromTo("#layer2 circle", { scale: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.4)", stagger: 0.06 }, 5.6)
   .to("#layerLabel2", { opacity: 0.7, duration: 0.3, ease: "power2.out" }, 5.9)
 
-// Connections layer 2->3
-  .to(".l23", { opacity: 0.35, duration: 0.4, ease: "power2.out", stagger: 0.03 }, 6.0)
+// Connections layer 2→3
+  .to(".l23", { opacity: 0.35, duration: 0.4, ease: "power2.out", stagger: 0.02 }, 6.0)
 
 // Layer 3 nodes appear
-  .to("#layer3 circle", { opacity: 1, duration: 0.3, ease: "power2.out", stagger: 0.08 }, 6.2)
+  .fromTo("#layer3 circle", { scale: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.4)", stagger: 0.06 }, 6.2)
   .to("#layerLabel3", { opacity: 0.7, duration: 0.3, ease: "power2.out" }, 6.5)
 
-// Connections layer 3->output
-  .to(".l3o", { opacity: 0.35, duration: 0.4, ease: "power2.out", stagger: 0.03 }, 6.5)
+// Connections layer 3→output
+  .to(".l3o", { opacity: 0.35, duration: 0.4, ease: "power2.out", stagger: 0.02 }, 6.5)
 
 // Output nodes appear
-  .to("#layerOut circle", { opacity: 1, duration: 0.3, ease: "back.out(1.3)", stagger: 0.08 }, 6.7)
+  .fromTo("#layerOut circle", { scale: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.4)", stagger: 0.06 }, 6.7)
   .to("#layerLabelOut", { opacity: 0.7, duration: 0.3, ease: "power2.out" }, 7.0)
 
 // =====================================================
 // SUB 4 [7.47-14.93s]: "The lines start combining into
 //   curves, surfaces, and boundaries complex enough to
 //   recognize a face or understand a sentence."
-// Visual: Network label, connections pulse with energy,
-//   curved decision boundary self-draws below network
 // =====================================================
 
 // Network label appears
-  .to("#networkLabel", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 7.5)
+  .to("#networkLabel", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 7.5);
 
-// Energy pulse through connections: layer 1->2
-  .to(".l12", { opacity: 0.7, stroke: "#3b82f6", duration: 0.4, ease: "power2.out" }, 8.0)
-  .to(".l12", { opacity: 0.35, duration: 0.5, ease: "power2.in" }, 8.5)
+// ── DATA FLOW BURST 1 (8.0s): Input → Hidden1 → Hidden2 → Output ──
+// Layer 1→2 flow dots
+var flowDots12 = document.querySelectorAll('.flowDot12');
+var flowDots23 = document.querySelectorAll('.flowDot23');
+var flowDots3o = document.querySelectorAll('.flowDot3o');
+var flowPaths12 = ['flowPath_l12_a', 'flowPath_l12_b', 'flowPath_l12_c'];
+var flowPaths23 = ['flowPath_l23_a', 'flowPath_l23_b', 'flowPath_l23_c'];
+var flowPaths3o = ['flowPath_l3o_a', 'flowPath_l3o_b', 'flowPath_l3o_c'];
 
-// Energy pulse layer 2->3
-  .to(".l23", { opacity: 0.7, stroke: "#8b5cf6", duration: 0.4, ease: "power2.out" }, 8.6)
-  .to(".l23", { opacity: 0.35, duration: 0.5, ease: "power2.in" }, 9.1)
+function animateFlowWave(startTime) {
+  // Layer 1→2
+  flowDots12.forEach(function(dot, i) {
+    tl.set(dot, { opacity: 0.9, x: 0, y: 0 }, startTime + i * 0.08)
+      .to(dot, {
+        motionPath: { path: "#" + flowPaths12[i], align: "#" + flowPaths12[i], alignOrigin: [0.5, 0.5] },
+        duration: 0.5, ease: "power1.in"
+      }, startTime + i * 0.08)
+      .set(dot, { opacity: 0 }, startTime + i * 0.08 + 0.5);
+  });
+  // Brighten L12 connections during flow
+  tl.to(".l12", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, startTime)
+    .to(".l12", { opacity: 0.35, duration: 0.3 }, startTime + 0.5);
 
-// Energy pulse layer 3->output
-  .to(".l3o", { opacity: 0.7, stroke: "#06b6d4", duration: 0.4, ease: "power2.out" }, 9.2)
-  .to(".l3o", { opacity: 0.35, duration: 0.5, ease: "power2.in" }, 9.7)
+  // Layer 2→3 (staggered 0.4s after)
+  flowDots23.forEach(function(dot, i) {
+    tl.set(dot, { opacity: 0.9, x: 0, y: 0 }, startTime + 0.4 + i * 0.08)
+      .to(dot, {
+        motionPath: { path: "#" + flowPaths23[i], align: "#" + flowPaths23[i], alignOrigin: [0.5, 0.5] },
+        duration: 0.5, ease: "power1.in"
+      }, startTime + 0.4 + i * 0.08)
+      .set(dot, { opacity: 0 }, startTime + 0.4 + i * 0.08 + 0.5);
+  });
+  tl.to(".l23", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, startTime + 0.4)
+    .to(".l23", { opacity: 0.35, duration: 0.3 }, startTime + 0.9);
 
-// Curved decision boundary self-draws -- "curves, surfaces, boundaries"
+  // Layer 3→output (staggered 0.8s after)
+  flowDots3o.forEach(function(dot, i) {
+    tl.set(dot, { opacity: 0.9, x: 0, y: 0 }, startTime + 0.8 + i * 0.08)
+      .to(dot, {
+        motionPath: { path: "#" + flowPaths3o[i], align: "#" + flowPaths3o[i], alignOrigin: [0.5, 0.5] },
+        duration: 0.5, ease: "power1.in"
+      }, startTime + 0.8 + i * 0.08)
+      .set(dot, { opacity: 0 }, startTime + 0.8 + i * 0.08 + 0.5);
+  });
+  tl.to(".l3o", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, startTime + 0.8)
+    .to(".l3o", { opacity: 0.35, duration: 0.3 }, startTime + 1.3);
+}
+
+// First data flow wave — "lines start combining"
+animateFlowWave(8.0);
+
+// Curved decision boundary grid appears
+tl.to("#curveGrid", { opacity: 1, duration: 0.5, ease: "power2.out" }, 9.3)
+
+// Curve self-draws — "curves, surfaces, boundaries"
   .to("#curvePath", { opacity: 0.9, duration: 0.01 }, 9.5)
   .to("#curvePath", { strokeDashoffset: 0, duration: 2.5, ease: "power1.inOut" }, 9.5)
 
 // Scatter dots around the curve appear
-  .to(".curveDotG", { opacity: 0.8, scale: 1, duration: 0.3, ease: "power2.out", stagger: 0.1 }, 10.5)
-  .to(".curveDotR", { opacity: 0.8, scale: 1, duration: 0.3, ease: "power2.out", stagger: 0.1 }, 10.8)
+  .to(".curveDotG", { opacity: 0.8, scale: 1, duration: 0.3, ease: "back.out(1.3)", stagger: 0.08 }, 10.3)
+  .to(".curveDotR", { opacity: 0.8, scale: 1, duration: 0.3, ease: "back.out(1.3)", stagger: 0.08 }, 10.6);
 
-// Curve glow intensifies during gap -- "boundaries complex enough"
-  .to("#curvePath", { strokeWidth: 5, duration: 0.8, ease: "sine.inOut" }, 11.2)
-  .to("#curvePath", { strokeWidth: 3.5, duration: 0.6, ease: "sine.inOut" }, 11.8)
+// Second data flow wave — fills the 11-12s gap — "complex enough"
+animateFlowWave(11.2);
 
-// Second energy pulse through network -- "recognize a face"
-  .to(".l12", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, 12.0)
-  .to(".l23", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, 12.3)
-  .to(".l3o", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, 12.6)
-  .to(".l12", { opacity: 0.35, duration: 0.4 }, 12.8)
-  .to(".l23", { opacity: 0.35, duration: 0.4 }, 13.0)
-  .to(".l3o", { opacity: 0.35, duration: 0.4 }, 13.2)
+// Curve glow intensifies — "boundaries complex enough"
+tl.to("#curvePath", { strokeWidth: 5, duration: 0.6, ease: "sine.inOut" }, 11.5)
+  .to("#curvePath", { strokeWidth: 3.5, duration: 0.6, ease: "sine.inOut" }, 12.1);
 
-// Third pulse -- "understand a sentence"
-  .to(".l12", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, 13.5)
-  .to(".l23", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, 13.8)
-  .to(".l3o", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, 14.1)
-  .to(".l12", { opacity: 0.25, duration: 0.4 }, 14.3)
-  .to(".l23", { opacity: 0.25, duration: 0.4 }, 14.5)
-  .to(".l3o", { opacity: 0.25, duration: 0.4 }, 14.7)
+// Third data flow wave — "recognize a face"
+animateFlowWave(12.8);
+
+// Fourth data flow wave — "understand a sentence" — fills tail
+animateFlowWave(14.0);
+
+// Ambient scatter dot floating (fills remaining time before transition)
+tl.to(".curveDotG", { y: -3, duration: 1.5, ease: "sine.inOut", stagger: 0.1 }, 13.0)
+  .to(".curveDotR", { y: 3, duration: 1.5, ease: "sine.inOut", stagger: 0.1 }, 13.2);
 
 // =====================================================
 // PHASE TRANSITION [15.0-16.2s]
-// Fade out phase 1, cover, reveal phase 2
 // =====================================================
 
-  .to("#phase1", { opacity: 0, duration: 0.6, ease: "power2.inOut" }, 15.0)
+tl.to("#phase1", { opacity: 0, duration: 0.6, ease: "power2.inOut" }, 15.0)
   .to("#cover", { opacity: 1, duration: 0.4 }, 15.5)
-  .to("#phase2", { opacity: 1, duration: 0.01 }, 16.0)
+  .to("#phase2", { opacity: 1, duration: 0.01 }, 16.0);
 
 // =====================================================
 // SUB 5 [16.23-21.78s]: "This is How AI Actually Works,
 //   Part 2: Neural Networks."
-// Visual: Roadmap appears with all 10 dots
 // =====================================================
 
-  .to("#roadmapPanel", { opacity: 0.5, duration: 0.6, ease: "power3.out" }, 16.2)
+tl.to("#roadmapPanel", { opacity: 0.5, duration: 0.6, ease: "power3.out" }, 16.2)
   .to("#roadmapTitle", { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.3)" }, 16.4)
   .to("#roadmapSubhead", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 16.8)
   .to("#roadmapLine", { opacity: 0.6, duration: 0.8, ease: "power2.out" }, 17.2)
@@ -584,40 +746,26 @@ tl.to("#titleGroup", { opacity: 1, duration: 0.01 }, 0.2)
   .to("#dot10", { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 19.4)
 
 // Traveling pulse sweeps from dot 1 to dot 2
-  .to("#roadmapPulse", { opacity: 0.9, duration: 0.2, ease: "power2.out" }, 19.8)
-  .to("#roadmapPulse", { cx: 369, duration: 1.0, ease: "power2.inOut" }, 19.8)
-  .to("#roadmapPulse", { opacity: 0, duration: 0.3 }, 20.8)
+  .to("#roadmapPulse", { opacity: 0.9, duration: 0.2, ease: "power2.out" }, 19.6)
+  .to("#roadmapPulse", { cx: 369, duration: 0.8, ease: "power2.inOut" }, 19.6)
+  .to("#roadmapPulse", { opacity: 0, duration: 0.3 }, 20.4)
 
-// "You are here" arrow appears at Part 2
+// "You are here" arrow appears at Part 2 (at 20.0s)
   .to("#hereArrow", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 20.0)
 
-// Subtle glow emphasis on dot 2 at end
+// Subtle glow emphasis on dot 2
   .to("#dot2 circle:first-child", { attr: { r: 24 }, duration: 0.6, ease: "sine.inOut" }, 20.8)
   .to("#dot2 circle:first-child", { attr: { r: 22 }, duration: 0.6, ease: "sine.inOut" }, 21.4)
 
-// End-of-scene ambient breathing on roadmap panel (fills tail to 23.28s)
-  .to("#roadmapPanel", { opacity: 0.6, duration: 1.0, ease: "sine.inOut" }, 21.8)
-  .to("#roadmapPanel", { opacity: 0.5, duration: 1.0, ease: "sine.inOut" }, 22.5);
-
-// ── Ambient: network node breathing (layer 2 hidden nodes) ──
-gsap.to("#layer2 circle:nth-child(1)", {
-  attr: { r: 21.5 }, duration: 2.2, ease: "sine.inOut",
-  yoyo: true, repeat: -1, delay: 5
-});
-gsap.to("#layer2 circle:nth-child(3)", {
-  attr: { r: 21.5 }, duration: 2.5, ease: "sine.inOut",
-  yoyo: true, repeat: -1, delay: 5.5
-});
-gsap.to("#layer2 circle:nth-child(5)", {
-  attr: { r: 21.5 }, duration: 2.0, ease: "sine.inOut",
-  yoyo: true, repeat: -1, delay: 6
-});
-
-// ── Ambient: curved boundary gentle shimmer ──
-gsap.to("#curvePath", {
-  opacity: 0.7, duration: 2.0, ease: "sine.inOut",
-  yoyo: true, repeat: -1, delay: 10
-});
+// End-of-scene ambient (21.8-23.28s) — gentle breathing on roadmap
+  .to("#roadmapPanel", { opacity: 0.6, duration: 0.7, ease: "sine.inOut" }, 21.8)
+  .to("#roadmapPanel", { opacity: 0.5, duration: 0.7, ease: "sine.inOut" }, 22.5)
+// Subtle title shimmer
+  .to("#roadmapTitle", { opacity: 0.85, duration: 0.5, ease: "sine.inOut" }, 22.0)
+  .to("#roadmapTitle", { opacity: 1, duration: 0.5, ease: "sine.inOut" }, 22.5)
+// "You are here" gentle pulse
+  .to("#hereArrow", { opacity: 0.7, duration: 0.5, ease: "sine.inOut" }, 22.3)
+  .to("#hereArrow", { opacity: 1, duration: 0.5, ease: "sine.inOut" }, 22.8);
 </script>
 <!-- SCENE-AUDIO-PREVIEW -->
 <audio id="sceneAudio" src="../audio/chunks/chunk_s00_g00_narrator.mp3" preload="auto"></audio>
