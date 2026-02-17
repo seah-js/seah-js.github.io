@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene 03 - Multiple Neurons, Multiple Lines</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/MotionPathPlugin.min.js"></script>
+<style>
+:root {
+  --bg: #0b0f1a; --surface: #151d30; --text: #e8ecf4;
+  --muted: #8892a8; --dim: #4a5568; --accent: #f97316;
+  --blue: #3b82f6; --purple: #8b5cf6; --red: #ef4444;
+  --green: #10b981; --cyan: #06b6d4;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif;
+  width: 1920px; height: 1080px; overflow: hidden; position: relative;
+}
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000;
+}
+.narration-sub{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);text-align:center;padding:10px 32px;max-width:1600px;font-size:18px;color:#8892a8;opacity:0;z-index:100;transition:opacity 0.3s;text-shadow:0 0 6px rgba(0,0,0,0.9),0 0 16px rgba(0,0,0,0.6);}
+</style>
+</head>
+<body>
+
+<svg id="mainSvg" width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;top:0;left:0;">
+  <defs>
+    <filter id="glowSmall" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowMed" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="pulseGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <marker id="arr-muted" markerWidth="16" markerHeight="12" refX="15" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L16,6 L0,12 Z" fill="#8892a8"/>
+    </marker>
+    <marker id="arr-blue" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arr-purple" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L14,5 L0,10 Z" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <!-- OBS background rect -->
+  <rect width="1920" height="1080" fill="#0b0f1a"/>
+
+  <!-- ============================================================ -->
+  <!-- PHASE 1: Two Neurons, Two Lines                              -->
+  <!-- ============================================================ -->
+  <g id="phase1">
+
+    <!-- Scene Title -->
+    <text id="sceneTitle" x="960" y="62" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="32" fill="#8892a8">Multiple Neurons</text>
+
+    <!-- ── Left Side: Two Neuron Nodes ── -->
+    <g id="neuronDiagram">
+      <!-- Input nodes -->
+      <g id="inputNodes">
+        <circle id="inputNode1" cx="140" cy="340" r="32" fill="#151d30" stroke="#4a5568" stroke-width="2.5"/>
+        <text x="140" y="347" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8">x&#x2081;</text>
+        <circle id="inputNode2" cx="140" cy="520" r="32" fill="#151d30" stroke="#4a5568" stroke-width="2.5"/>
+        <text x="140" y="527" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8">x&#x2082;</text>
+      </g>
+
+      <!-- Connection arrows: inputs to neuron 1 -->
+      <line id="conn1a" x1="172" y1="340" x2="318" y2="340" stroke="#3b82f6" stroke-width="2" opacity="0.5"/>
+      <line id="conn1b" x1="172" y1="520" x2="318" y2="340" stroke="#3b82f6" stroke-width="2" opacity="0.5"/>
+      <!-- Connection arrows: inputs to neuron 2 -->
+      <line id="conn2a" x1="172" y1="340" x2="318" y2="520" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+      <line id="conn2b" x1="172" y1="520" x2="318" y2="520" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+
+      <!-- Neuron 1 (blue) -->
+      <g id="neuron1Group">
+        <circle id="neuron1Pulse" cx="350" cy="340" r="38" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0" filter="url(#pulseGlow)"/>
+        <circle id="neuron1Body" cx="350" cy="340" r="36" fill="#151d30" stroke="#3b82f6" stroke-width="3"/>
+        <text x="350" y="347" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#3b82f6">N&#x2081;</text>
+      </g>
+
+      <!-- Neuron 2 (purple) -->
+      <g id="neuron2Group">
+        <circle id="neuron2Pulse" cx="350" cy="520" r="38" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0" filter="url(#pulseGlow)"/>
+        <circle id="neuron2Body" cx="350" cy="520" r="36" fill="#151d30" stroke="#8b5cf6" stroke-width="3"/>
+        <text x="350" y="527" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#8b5cf6">N&#x2082;</text>
+      </g>
+
+      <!-- Labels -->
+      <text id="labelInputs" x="140" y="260" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="20" fill="#4a5568">Inputs</text>
+      <text id="labelNeurons" x="350" y="260" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="20" fill="#4a5568">Neurons</text>
+
+      <!-- "Same inputs" annotation -->
+      <g id="sameInputsLabel">
+        <rect x="80" y="410" width="120" height="36" rx="8" fill="#151d30" stroke="#4a5568" stroke-width="1.5"/>
+        <text x="140" y="434" text-anchor="middle" font-family="Outfit" font-weight="300" font-size="16" fill="#8892a8">same inputs</text>
+      </g>
+    </g>
+
+    <!-- ── Right Side: Scatter Plot ── -->
+    <g id="plotGroup" transform="translate(560, 120)">
+      <!-- Plot background panel -->
+      <rect id="plotBg" x="0" y="0" width="1280" height="700" rx="16" fill="#151d30" stroke="#4a5568" stroke-width="1.5" opacity="0.4"/>
+
+      <!-- Axes -->
+      <g id="plotAxes">
+        <!-- Y axis -->
+        <line x1="120" y1="80" x2="120" y2="600" stroke="#4a5568" stroke-width="2"/>
+        <!-- X axis -->
+        <line x1="120" y1="600" x2="1160" y2="600" stroke="#4a5568" stroke-width="2"/>
+        <!-- Axis labels -->
+        <text x="640" y="660" text-anchor="middle" font-family="Outfit" font-weight="300" font-size="20" fill="#4a5568">Hours Studied</text>
+        <text x="50" y="340" text-anchor="middle" font-family="Outfit" font-weight="300" font-size="20" fill="#4a5568" transform="rotate(-90, 50, 340)">Hours Slept</text>
+      </g>
+
+      <!-- Data dots: green (pass) cluster upper-right, red (fail) cluster lower-left -->
+      <g id="dataDots">
+        <!-- Green (pass) dots -->
+        <circle cx="780" cy="180" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="850" cy="220" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="920" cy="170" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="800" cy="280" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="880" cy="300" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="960" cy="240" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="1020" cy="200" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="700" cy="200" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="750" cy="320" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="1060" cy="280" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="940" cy="350" r="8" fill="#10b981" opacity="0.85"/>
+        <!-- Red (fail) dots -->
+        <circle cx="250" cy="480" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="320" cy="520" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="200" cy="540" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="380" cy="450" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="300" cy="400" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="420" cy="500" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="180" cy="420" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="350" cy="560" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="460" cy="380" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="260" cy="350" r="8" fill="#ef4444" opacity="0.85"/>
+        <!-- Ambiguous zone dots -->
+        <circle cx="550" cy="360" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="620" cy="380" r="8" fill="#10b981" opacity="0.85"/>
+        <circle cx="580" cy="420" r="8" fill="#ef4444" opacity="0.85"/>
+        <circle cx="650" cy="300" r="8" fill="#10b981" opacity="0.85"/>
+      </g>
+
+      <!-- Decision line 1 (blue) — diagonal from lower-left to upper-right -->
+      <line id="line1" x1="160" y1="550" x2="1100" y2="130" stroke="#3b82f6" stroke-width="3" stroke-dasharray="1200" stroke-dashoffset="1200" opacity="0.9"/>
+
+      <!-- Decision line 2 (purple) — different angle, more horizontal -->
+      <line id="line2" x1="160" y1="300" x2="1100" y2="430" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="1000" stroke-dashoffset="1000" opacity="0.9"/>
+
+      <!-- Region shading (4 regions created by 2 intersecting lines) -->
+      <!-- Region A: top-left (above both lines) -->
+      <polygon id="regionA" points="160,80 1100,80 1100,130 160,300" fill="#3b82f6" opacity="0"/>
+      <!-- Region B: top-right (above blue, below purple) -->
+      <polygon id="regionB" points="580,248 1100,130 1100,430 780,350" fill="#8b5cf6" opacity="0"/>
+      <!-- Region C: bottom-left (below blue, above purple) -->
+      <polygon id="regionC" points="160,300 160,550 480,340 580,248" fill="#06b6d4" opacity="0"/>
+      <!-- Region D: bottom-right (below both lines) -->
+      <polygon id="regionD" points="160,550 160,600 1100,600 1100,430 780,350 480,340" fill="#f97316" opacity="0"/>
+
+      <!-- Region labels -->
+      <g id="regionLabels">
+        <text id="rLabelA" x="500" y="170" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#3b82f6" opacity="0">A</text>
+        <text id="rLabelB" x="900" y="300" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#8b5cf6" opacity="0">B</text>
+        <text id="rLabelC" x="300" y="380" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#06b6d4" opacity="0">C</text>
+        <text id="rLabelD" x="640" y="530" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#f97316" opacity="0">D</text>
+      </g>
+
+      <!-- Summary label -->
+      <g id="summaryLabel1">
+        <rect x="400" y="630" width="480" height="50" rx="12" fill="#151d30" stroke="#4a5568" stroke-width="2"/>
+        <text x="640" y="663" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="24" fill="#e8ecf4">2 neurons = 2 lines = 4 regions</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- Cover rect for phase transition                               -->
+  <!-- ============================================================ -->
+  <rect id="phaseCover" x="0" y="0" width="1920" height="1080" fill="#0b0f1a" opacity="0"/>
+
+  <!-- ============================================================ -->
+  <!-- PHASE 2: Three Neurons + Paper Cutting Analogy               -->
+  <!-- ============================================================ -->
+  <g id="phase2">
+
+    <!-- Scene Title Phase 2 -->
+    <text id="sceneTitle2" x="960" y="62" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="32" fill="#8892a8">Straight Lines, Complex Regions</text>
+
+    <!-- ── Left Side: Scatter Plot with 3 Lines ── -->
+    <g id="plot2Group" transform="translate(80, 90)">
+      <rect id="plot2Bg" x="0" y="0" width="860" height="700" rx="16" fill="#151d30" stroke="#4a5568" stroke-width="1.5" opacity="0.4"/>
+
+      <!-- Axes -->
+      <line x1="80" y1="60" x2="80" y2="620" stroke="#4a5568" stroke-width="2"/>
+      <line x1="80" y1="620" x2="800" y2="620" stroke="#4a5568" stroke-width="2"/>
+
+      <!-- Data dots (same distribution) -->
+      <g id="dataDots2">
+        <circle cx="540" cy="160" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="600" cy="190" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="650" cy="140" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="560" cy="240" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="620" cy="260" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="680" cy="200" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="730" cy="170" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="490" cy="170" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="520" cy="280" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="750" cy="240" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="660" cy="300" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="200" cy="440" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="260" cy="480" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="160" cy="500" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="310" cy="420" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="240" cy="370" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="340" cy="460" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="140" cy="390" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="280" cy="520" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="370" cy="350" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="210" cy="320" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="400" cy="340" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="440" cy="320" r="7" fill="#10b981" opacity="0.8"/>
+        <circle cx="420" cy="400" r="7" fill="#ef4444" opacity="0.8"/>
+        <circle cx="460" cy="260" r="7" fill="#10b981" opacity="0.8"/>
+      </g>
+
+      <!-- 3 Decision lines -->
+      <line id="line2a" x1="120" y1="530" x2="780" y2="110" stroke="#3b82f6" stroke-width="3" stroke-dasharray="900" stroke-dashoffset="900" opacity="0.9"/>
+      <line id="line2b" x1="120" y1="250" x2="780" y2="380" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="700" stroke-dashoffset="700" opacity="0.9"/>
+      <line id="line2c" x1="380" y1="60" x2="200" y2="620" stroke="#06b6d4" stroke-width="3" stroke-dasharray="600" stroke-dashoffset="600" opacity="0.9"/>
+
+      <!-- Region shading for 7 regions (simplified representative polygons) -->
+      <polygon id="reg1" points="120,60 380,60 310,250 120,250" fill="#3b82f6" opacity="0"/>
+      <polygon id="reg2" points="380,60 780,60 780,110 450,180 310,250" fill="#8b5cf6" opacity="0"/>
+      <polygon id="reg3" points="780,110 780,380 530,290 450,180" fill="#06b6d4" opacity="0"/>
+      <polygon id="reg4" points="120,250 310,250 350,330 270,530 120,530" fill="#f97316" opacity="0"/>
+      <polygon id="reg5" points="310,250 450,180 530,290 440,370 350,330" fill="#10b981" opacity="0"/>
+      <polygon id="reg6" points="530,290 780,380 780,620 270,620 270,530 440,370" fill="#ef4444" opacity="0"/>
+      <polygon id="reg7" points="120,530 270,530 270,620 120,620" fill="#8892a8" opacity="0"/>
+
+      <!-- Region count labels -->
+      <g id="regCountLabels">
+        <text x="240" y="180" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#3b82f6" opacity="0">1</text>
+        <text x="550" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8b5cf6" opacity="0">2</text>
+        <text x="680" y="280" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#06b6d4" opacity="0">3</text>
+        <text x="210" y="420" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#f97316" opacity="0">4</text>
+        <text x="420" y="300" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#10b981" opacity="0">5</text>
+        <text x="520" y="500" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#ef4444" opacity="0">6</text>
+        <text x="160" y="580" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8" opacity="0">7</text>
+      </g>
+
+      <!-- Neuron indicator badges below plot -->
+      <g id="neuronBadges">
+        <circle cx="300" cy="665" r="10" fill="#3b82f6" opacity="0.8"/>
+        <text x="318" y="670" font-family="Outfit" font-weight="400" font-size="18" fill="#3b82f6">N1</text>
+        <circle cx="400" cy="665" r="10" fill="#8b5cf6" opacity="0.8"/>
+        <text x="418" y="670" font-family="Outfit" font-weight="400" font-size="18" fill="#8b5cf6">N2</text>
+        <circle cx="500" cy="665" r="10" fill="#06b6d4" opacity="0.8"/>
+        <text x="518" y="670" font-family="Outfit" font-weight="400" font-size="18" fill="#06b6d4">N3</text>
+      </g>
+    </g>
+
+    <!-- ── Right Side: Paper Cutting Analogy ── -->
+    <g id="paperAnalogy" transform="translate(1020, 90)">
+      <rect id="analogyBg" x="0" y="0" width="820" height="700" rx="16" fill="#151d30" stroke="#4a5568" stroke-width="1.5" opacity="0.4"/>
+
+      <text id="analogyTitle" x="410" y="52" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="26" fill="#8892a8">Cutting Paper</text>
+
+      <!-- Cut 1: 1 cut = 2 pieces -->
+      <g id="cut1Group" transform="translate(60, 80)">
+        <text x="0" y="24" font-family="Outfit" font-weight="600" font-size="22" fill="#e8ecf4">1 cut</text>
+        <!-- Paper rectangle -->
+        <rect id="paper1" x="120" y="0" width="260" height="160" rx="8" fill="#1e293b" stroke="#4a5568" stroke-width="2"/>
+        <!-- The cut line -->
+        <line id="cutLine1" x1="250" y1="0" x2="250" y2="160" stroke="#f97316" stroke-width="3" stroke-dasharray="160" stroke-dashoffset="160"/>
+        <!-- Piece labels -->
+        <text id="piece1a" x="185" y="90" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8" opacity="0">1</text>
+        <text id="piece1b" x="315" y="90" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8" opacity="0">2</text>
+        <!-- Result badge -->
+        <g id="cutResult1">
+          <rect x="420" y="55" width="180" height="50" rx="10" fill="#151d30" stroke="#f97316" stroke-width="2"/>
+          <text x="510" y="88" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="24" fill="#f97316">2 pieces</text>
+        </g>
+      </g>
+
+      <!-- Cut 2: 2 cuts = 4 pieces -->
+      <g id="cut2Group" transform="translate(60, 290)">
+        <text x="0" y="24" font-family="Outfit" font-weight="600" font-size="22" fill="#e8ecf4">2 cuts</text>
+        <!-- Paper rectangle -->
+        <rect id="paper2" x="120" y="0" width="260" height="160" rx="8" fill="#1e293b" stroke="#4a5568" stroke-width="2"/>
+        <!-- Cut lines -->
+        <line id="cutLine2a" x1="220" y1="0" x2="220" y2="160" stroke="#3b82f6" stroke-width="3" stroke-dasharray="160" stroke-dashoffset="160"/>
+        <line id="cutLine2b" x1="120" y1="80" x2="380" y2="80" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="260" stroke-dashoffset="260"/>
+        <!-- Piece labels -->
+        <text id="piece2a" x="170" y="50" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8" opacity="0">1</text>
+        <text id="piece2b" x="300" y="50" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8" opacity="0">2</text>
+        <text id="piece2c" x="170" y="130" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8" opacity="0">3</text>
+        <text id="piece2d" x="300" y="130" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#8892a8" opacity="0">4</text>
+        <!-- Result badge -->
+        <g id="cutResult2">
+          <rect x="420" y="55" width="180" height="50" rx="10" fill="#151d30" stroke="#3b82f6" stroke-width="2"/>
+          <text x="510" y="88" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="24" fill="#3b82f6">4 pieces</text>
+        </g>
+      </g>
+
+      <!-- Cut 3: 3 cuts = 7 pieces -->
+      <g id="cut3Group" transform="translate(60, 500)">
+        <text x="0" y="24" font-family="Outfit" font-weight="600" font-size="22" fill="#e8ecf4">3 cuts</text>
+        <!-- Paper rectangle -->
+        <rect id="paper3" x="120" y="0" width="260" height="160" rx="8" fill="#1e293b" stroke="#4a5568" stroke-width="2"/>
+        <!-- Cut lines -->
+        <line id="cutLine3a" x1="200" y1="0" x2="200" y2="160" stroke="#3b82f6" stroke-width="3" stroke-dasharray="160" stroke-dashoffset="160"/>
+        <line id="cutLine3b" x1="120" y1="65" x2="380" y2="65" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="260" stroke-dashoffset="260"/>
+        <line id="cutLine3c" x1="140" y1="160" x2="350" y2="0" stroke="#06b6d4" stroke-width="3" stroke-dasharray="260" stroke-dashoffset="260"/>
+        <!-- Piece labels -->
+        <text id="piece3a" x="160" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="18" fill="#8892a8" opacity="0">1</text>
+        <text id="piece3b" x="270" y="36" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="18" fill="#8892a8" opacity="0">2</text>
+        <text id="piece3c" x="320" y="90" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="18" fill="#8892a8" opacity="0">3</text>
+        <text id="piece3d" x="160" y="100" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="18" fill="#8892a8" opacity="0">4</text>
+        <text id="piece3e" x="240" y="100" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="18" fill="#8892a8" opacity="0">5</text>
+        <text id="piece3f" x="170" y="145" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="18" fill="#8892a8" opacity="0">6</text>
+        <text id="piece3g" x="300" y="145" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="18" fill="#8892a8" opacity="0">7</text>
+        <!-- Result badge -->
+        <g id="cutResult3">
+          <rect x="420" y="55" width="180" height="50" rx="10" fill="#151d30" stroke="#06b6d4" stroke-width="2"/>
+          <text x="510" y="88" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="24" fill="#06b6d4">7 pieces</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Bottom summary label for phase 2 -->
+    <g id="summaryLabel2">
+      <rect x="600" y="820" width="720" height="50" rx="12" fill="#151d30" stroke="#4a5568" stroke-width="2"/>
+      <text x="960" y="853" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="24" fill="#e8ecf4">Each cut is straight, but together they carve complex shapes</text>
+    </g>
+  </g>
+
+</svg>
+
+<!-- Subtitles -->
+<div class="narration-sub" id="sub"></div>
+
+<script>
+gsap.registerPlugin(MotionPathPlugin);
+
+// ── Subtitle engine ──
+var T0 = performance.now();
+var subs = [{"start": 0, "end": 3211, "text": "Take two neurons and give them the same inputs."}, {"start": 3211, "end": 10347, "text": "Each neuron has its own weights and its own bias, so each one draws a different line through the data."}, {"start": 10347, "end": 11774, "text": "Two neurons, two lines."}, {"start": 11774, "end": 15697, "text": "Those two lines divide the space into up to four regions."}, {"start": 16649, "end": 19381, "text": "Three neurons, three lines, even more regions."}, {"start": 19381, "end": 24451, "text": "Each individual neuron is still just drawing a straight line \u2014 that hasn\u2019t changed."}, {"start": 24451, "end": 29131, "text": "But the combination of multiple lines creates regions that no single line could."}, {"start": 29131, "end": 32642, "text": "Think of it like cutting paper with straight scissors."}, {"start": 32642, "end": 34982, "text": "One cut gives you two pieces."}, {"start": 34982, "end": 36932, "text": "Two cuts, up to four."}, {"start": 36932, "end": 38881, "text": "Three cuts, up to seven."}, {"start": 38881, "end": 42771, "text": "Each cut is straight, but together they carve complex shapes."}];
+(function tick() {
+  var t = performance.now() - (window.T0_override || T0);
+  var el = document.getElementById("sub");
+  var active = null;
+  for (var i = 0; i < subs.length; i++) { if (t >= subs[i].start && t < subs[i].end) { active = subs[i].text; break; } }
+  el.textContent = active || '';
+  el.style.opacity = active ? '1' : '0';
+  requestAnimationFrame(tick);
+})();
+
+// ── Initial states ──────────────────────────────────────────
+// Phase 1
+gsap.set("#sceneTitle", { opacity: 0, y: 14 });
+gsap.set("#neuronDiagram", { opacity: 0 });
+gsap.set("#inputNodes", { opacity: 0, x: -14 });
+gsap.set("#conn1a, #conn1b", { opacity: 0 });
+gsap.set("#conn2a, #conn2b", { opacity: 0 });
+gsap.set("#neuron1Group", { opacity: 0, scale: 0.88, svgOrigin: "350 340" });
+gsap.set("#neuron2Group", { opacity: 0, scale: 0.88, svgOrigin: "350 520" });
+gsap.set("#labelInputs, #labelNeurons", { opacity: 0 });
+gsap.set("#sameInputsLabel", { opacity: 0 });
+gsap.set("#plotGroup", { opacity: 0 });
+gsap.set("#dataDots", { opacity: 0 });
+gsap.set("#line1", { opacity: 0.9 });
+gsap.set("#line2", { opacity: 0.9 });
+gsap.set("#summaryLabel1", { opacity: 0, y: 10 });
+
+// Phase 2
+gsap.set("#phase2", { opacity: 0 });
+gsap.set("#sceneTitle2", { opacity: 0, y: 14 });
+gsap.set("#plot2Group", { opacity: 0 });
+gsap.set("#paperAnalogy", { opacity: 0 });
+gsap.set("#cut1Group", { opacity: 0, y: 14 });
+gsap.set("#cut2Group", { opacity: 0, y: 14 });
+gsap.set("#cut3Group", { opacity: 0, y: 14 });
+gsap.set("#cutResult1", { opacity: 0, x: 14 });
+gsap.set("#cutResult2", { opacity: 0, x: 14 });
+gsap.set("#cutResult3", { opacity: 0, x: 14 });
+gsap.set("#neuronBadges", { opacity: 0 });
+gsap.set("#summaryLabel2", { opacity: 0, y: 10 });
+
+// ── Ambient breathing ───────────────────────────────────────
+gsap.to("#neuron1Body", {
+  scale: 1.06, svgOrigin: "350 340",
+  duration: 2.2, ease: "sine.inOut", yoyo: true, repeat: -1
+});
+gsap.to("#neuron2Body", {
+  scale: 1.06, svgOrigin: "350 520",
+  duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.5
+});
+
+// Pulse rings for neurons
+function pulseNeuron(ringId, cx, cy, delay) {
+  gsap.to(ringId, {
+    scale: 1.5, svgOrigin: cx + " " + cy, opacity: 0,
+    duration: 2.0, ease: "power1.out", repeat: -1,
+    repeatDelay: 1.4, delay: delay
+  });
+}
+
+// ── Master timeline ─────────────────────────────────────────
+var tl = gsap.timeline();
+
+// ══════════════════════════════════════════════════════════════
+// PHASE 1: Two Neurons, Two Lines (0 - ~16s)
+// ══════════════════════════════════════════════════════════════
+
+// ── Sub 1 (0-3.2s): "Take two neurons and give them the same inputs." ──
+tl.to("#sceneTitle", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.2)
+  .to("#neuronDiagram", { opacity: 1, duration: 0.01 }, 0.5)
+  .to("#inputNodes", { opacity: 1, x: 0, duration: 0.7, ease: "power3.out" }, 0.6)
+  .to("#neuron1Group", { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, 1.0)
+  .to("#neuron2Group", { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, 1.4)
+  .to("#conn1a, #conn1b", { opacity: 0.5, duration: 0.5, ease: "power2.out" }, 1.6)
+  .to("#conn2a, #conn2b", { opacity: 0.5, duration: 0.5, ease: "power2.out" }, 1.8)
+  .to("#labelInputs, #labelNeurons", { opacity: 1, duration: 0.4, ease: "power2.out" }, 2.0)
+  .to("#sameInputsLabel", { opacity: 1, duration: 0.5, ease: "power2.out" }, 2.4)
+  // Start neuron pulse rings
+  .call(function() {
+    gsap.set("#neuron1Pulse", { opacity: 0.3 });
+    gsap.set("#neuron2Pulse", { opacity: 0.3 });
+    pulseNeuron("#neuron1Pulse", 350, 340, 0);
+    pulseNeuron("#neuron2Pulse", 350, 520, 0.8);
+  }, null, 2.8)
+
+// ── Sub 2 (3.2-10.3s): "Each neuron has its own weights..." ──
+  // Show scatter plot, then draw lines one at a time
+  .to("#plotGroup", { opacity: 1, duration: 0.8, ease: "power3.out" }, 3.4)
+  .to("#dataDots", { opacity: 1, duration: 0.8, ease: "power2.out" }, 4.0)
+  // Neuron 1 draws blue line
+  .to("#line1", { strokeDashoffset: 0, duration: 2.0, ease: "power1.inOut" }, 5.0)
+  // Brief pulse on neuron 1 as its line draws
+  .to("#neuron1Body", { attr: { "stroke-width": 5 }, duration: 0.3, ease: "power2.out" }, 5.0)
+  .to("#neuron1Body", { attr: { "stroke-width": 3 }, duration: 0.5 }, 5.5)
+  // Neuron 2 draws purple line
+  .to("#line2", { strokeDashoffset: 0, duration: 2.0, ease: "power1.inOut" }, 7.5)
+  // Brief pulse on neuron 2
+  .to("#neuron2Body", { attr: { "stroke-width": 5 }, duration: 0.3, ease: "power2.out" }, 7.5)
+  .to("#neuron2Body", { attr: { "stroke-width": 3 }, duration: 0.5 }, 8.0)
+
+// ── Sub 3 (10.3-11.8s): "Two neurons, two lines." ──
+  // Flash both lines
+  .to("#line1", { attr: { "stroke-width": 5 }, duration: 0.2, ease: "power2.out" }, 10.5)
+  .to("#line1", { attr: { "stroke-width": 3 }, duration: 0.3 }, 10.7)
+  .to("#line2", { attr: { "stroke-width": 5 }, duration: 0.2, ease: "power2.out" }, 10.7)
+  .to("#line2", { attr: { "stroke-width": 3 }, duration: 0.3 }, 10.9)
+
+// ── Sub 4 (11.8-15.7s): "Those two lines divide the space into up to four regions." ──
+  // Shade the four regions with stagger
+  .to("#regionA", { opacity: 0.08, duration: 0.5, ease: "power2.out" }, 12.0)
+  .to("#regionB", { opacity: 0.08, duration: 0.5, ease: "power2.out" }, 12.4)
+  .to("#regionC", { opacity: 0.08, duration: 0.5, ease: "power2.out" }, 12.8)
+  .to("#regionD", { opacity: 0.08, duration: 0.5, ease: "power2.out" }, 13.2)
+  // Region labels
+  .to("#rLabelA", { opacity: 0.8, duration: 0.4, ease: "power2.out" }, 12.2)
+  .to("#rLabelB", { opacity: 0.8, duration: 0.4, ease: "power2.out" }, 12.6)
+  .to("#rLabelC", { opacity: 0.8, duration: 0.4, ease: "power2.out" }, 13.0)
+  .to("#rLabelD", { opacity: 0.8, duration: 0.4, ease: "power2.out" }, 13.4)
+  // Summary label
+  .to("#summaryLabel1", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 14.0)
+
+// ══════════════════════════════════════════════════════════════
+// PHASE TRANSITION (15.5 - 17s)
+// ══════════════════════════════════════════════════════════════
+  .to("#phase1", { opacity: 0, duration: 0.5 }, 15.8)
+  .to("#phaseCover", { opacity: 1, duration: 0.4 }, 16.0)
+  .to("#phase2", { opacity: 1, duration: 0.01 }, 16.5)
+  .to("#phaseCover", { opacity: 0, duration: 0.01 }, 16.5)
+
+// ══════════════════════════════════════════════════════════════
+// PHASE 2: Three Lines + Paper Cutting (16.6 - 44s)
+// ══════════════════════════════════════════════════════════════
+
+// ── Sub 5 (16.6-19.4s): "Three neurons, three lines, even more regions." ──
+  .to("#sceneTitle2", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 16.8)
+  .to("#plot2Group", { opacity: 1, duration: 0.7, ease: "power3.out" }, 17.0)
+  // Draw line 1 (blue)
+  .to("#line2a", { strokeDashoffset: 0, duration: 0.8, ease: "power1.inOut" }, 17.2)
+  // Draw line 2 (purple)
+  .to("#line2b", { strokeDashoffset: 0, duration: 0.8, ease: "power1.inOut" }, 17.8)
+  // Draw line 3 (cyan)
+  .to("#line2c", { strokeDashoffset: 0, duration: 0.8, ease: "power1.inOut" }, 18.4)
+  .to("#neuronBadges", { opacity: 1, duration: 0.4, ease: "power2.out" }, 19.0)
+
+// ── Sub 6 (19.4-24.5s): "Each individual neuron is still just drawing a straight line..." ──
+  // Flash each line individually to show they're all straight
+  .to("#line2a", { attr: { "stroke-width": 5 }, duration: 0.3, ease: "power2.out" }, 19.8)
+  .to("#line2a", { attr: { "stroke-width": 3 }, duration: 0.4 }, 20.2)
+  .to("#line2b", { attr: { "stroke-width": 5 }, duration: 0.3, ease: "power2.out" }, 20.8)
+  .to("#line2b", { attr: { "stroke-width": 3 }, duration: 0.4 }, 21.2)
+  .to("#line2c", { attr: { "stroke-width": 5 }, duration: 0.3, ease: "power2.out" }, 21.8)
+  .to("#line2c", { attr: { "stroke-width": 3 }, duration: 0.4 }, 22.2)
+
+// ── Sub 7 (24.5-29.1s): "But the combination of multiple lines creates regions..." ──
+  // Shade in the 7 regions with staggered reveals
+  .to("#reg1", { opacity: 0.07, duration: 0.4, ease: "power2.out" }, 24.6)
+  .to("#reg2", { opacity: 0.07, duration: 0.4, ease: "power2.out" }, 24.9)
+  .to("#reg3", { opacity: 0.07, duration: 0.4, ease: "power2.out" }, 25.2)
+  .to("#reg4", { opacity: 0.07, duration: 0.4, ease: "power2.out" }, 25.5)
+  .to("#reg5", { opacity: 0.07, duration: 0.4, ease: "power2.out" }, 25.8)
+  .to("#reg6", { opacity: 0.07, duration: 0.4, ease: "power2.out" }, 26.1)
+  .to("#reg7", { opacity: 0.07, duration: 0.4, ease: "power2.out" }, 26.4)
+  // Region number labels
+  .to("#regCountLabels text", { opacity: 0.8, duration: 0.3, ease: "power2.out", stagger: 0.15 }, 26.8)
+
+// ── Sub 8 (29.1-32.6s): "Think of it like cutting paper with straight scissors." ──
+  // Reveal paper analogy panel
+  .to("#paperAnalogy", { opacity: 1, duration: 0.7, ease: "power3.out" }, 29.3)
+  .to("#analogyTitle", { opacity: 1, duration: 0.5, ease: "power2.out" }, 29.6)
+  // Show first paper (empty, no cuts yet)
+  .to("#cut1Group", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 30.0)
+  .to("#cut2Group", { opacity: 0.3, y: 0, duration: 0.6, ease: "power3.out" }, 30.3)
+  .to("#cut3Group", { opacity: 0.3, y: 0, duration: 0.6, ease: "power3.out" }, 30.6)
+
+// ── Sub 9 (32.6-35.0s): "One cut gives you two pieces." ──
+  // Draw cut line 1
+  .to("#cutLine1", { strokeDashoffset: 0, duration: 0.8, ease: "power1.inOut" }, 32.8)
+  .to("#piece1a", { opacity: 1, duration: 0.3, ease: "power2.out" }, 33.4)
+  .to("#piece1b", { opacity: 1, duration: 0.3, ease: "power2.out" }, 33.6)
+  .to("#cutResult1", { opacity: 1, x: 0, duration: 0.5, ease: "back.out(1.3)" }, 33.8)
+
+// ── Sub 10 (35.0-36.9s): "Two cuts, up to four." ──
+  .to("#cut2Group", { opacity: 1, duration: 0.3 }, 35.0)
+  .to("#cutLine2a", { strokeDashoffset: 0, duration: 0.5, ease: "power1.inOut" }, 35.2)
+  .to("#cutLine2b", { strokeDashoffset: 0, duration: 0.5, ease: "power1.inOut" }, 35.5)
+  .to("#piece2a, #piece2b, #piece2c, #piece2d", { opacity: 1, duration: 0.3, ease: "power2.out", stagger: 0.08 }, 35.9)
+  .to("#cutResult2", { opacity: 1, x: 0, duration: 0.5, ease: "back.out(1.3)" }, 36.2)
+
+// ── Sub 11 (36.9-38.9s): "Three cuts, up to seven." ──
+  .to("#cut3Group", { opacity: 1, duration: 0.3 }, 37.0)
+  .to("#cutLine3a", { strokeDashoffset: 0, duration: 0.4, ease: "power1.inOut" }, 37.1)
+  .to("#cutLine3b", { strokeDashoffset: 0, duration: 0.4, ease: "power1.inOut" }, 37.4)
+  .to("#cutLine3c", { strokeDashoffset: 0, duration: 0.4, ease: "power1.inOut" }, 37.7)
+  .to("#piece3a, #piece3b, #piece3c, #piece3d, #piece3e, #piece3f, #piece3g", { opacity: 1, duration: 0.2, ease: "power2.out", stagger: 0.06 }, 38.0)
+  .to("#cutResult3", { opacity: 1, x: 0, duration: 0.5, ease: "back.out(1.3)" }, 38.2)
+
+// ── Sub 12 (38.9-42.8s): "Each cut is straight, but together they carve complex shapes." ──
+  // Flash all cut lines simultaneously to show "straight"
+  .to("#cutLine1, #cutLine2a, #cutLine2b, #cutLine3a, #cutLine3b, #cutLine3c", {
+    attr: { "stroke-width": 5 }, duration: 0.3, ease: "power2.out"
+  }, 39.2)
+  .to("#cutLine1, #cutLine2a, #cutLine2b, #cutLine3a, #cutLine3b, #cutLine3c", {
+    attr: { "stroke-width": 3 }, duration: 0.5
+  }, 39.6)
+  // Also flash the 3 decision lines on the left plot
+  .to("#line2a, #line2b, #line2c", { attr: { "stroke-width": 5 }, duration: 0.3, ease: "power2.out" }, 39.4)
+  .to("#line2a, #line2b, #line2c", { attr: { "stroke-width": 3 }, duration: 0.5 }, 39.8)
+  // Brighten all regions to emphasize complexity
+  .to("#reg1, #reg2, #reg3, #reg4, #reg5, #reg6, #reg7", { opacity: 0.12, duration: 0.6, ease: "power2.out" }, 40.2)
+  // Show summary label
+  .to("#summaryLabel2", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 40.8);
+
+// ── Ambient motion for phase 2 data dots ──
+gsap.to("#dataDots2 circle", {
+  y: function() { return (Math.random() - 0.5) * 4; },
+  x: function() { return (Math.random() - 0.5) * 4; },
+  duration: 3, ease: "sine.inOut", yoyo: true, repeat: -1,
+  stagger: { each: 0.15, from: "random" }
+});
+
+// ── Ambient motion for phase 1 data dots ──
+gsap.to("#dataDots circle", {
+  y: function() { return (Math.random() - 0.5) * 4; },
+  x: function() { return (Math.random() - 0.5) * 4; },
+  duration: 3, ease: "sine.inOut", yoyo: true, repeat: -1,
+  stagger: { each: 0.12, from: "random" }
+});
+
+</script>
+<!-- SCENE-AUDIO-PREVIEW -->
+<audio id="sceneAudio" src="../audio/chunks/chunk_s02_g00_narrator.mp3" preload="auto"></audio>
+<div id="playOverlay" style="position:absolute;inset:0;z-index:9999;background:rgba(11,15,26,0.92);display:flex;justify-content:center;align-items:center;cursor:pointer;">
+  <div style="text-align:center;">
+    <div style="width:80px;height:80px;border-radius:50%;background:#f97316;display:flex;justify-content:center;align-items:center;margin:0 auto 16px;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19"/></svg>
+    </div>
+    <div style="font-family:'Outfit',sans-serif;font-size:20px;color:#e8ecf4;">Click to Play</div>
+  </div>
+</div>
+<script>
+(function() {
+  var overlay = document.getElementById('playOverlay');
+  var audio = document.getElementById('sceneAudio');
+  overlay.addEventListener('click', function() {
+    if (typeof T0 !== 'undefined') window.T0_override = performance.now();
+    audio.play().catch(function() {});
+    overlay.style.display = 'none';
+    if (typeof tl !== 'undefined' && tl.restart) tl.restart();
+  });
+})();
+</script>
+<!-- /SCENE-AUDIO-PREVIEW -->
+</body>
+</html>

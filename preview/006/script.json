@@ -1,0 +1,482 @@
+{
+  "title": "How AI Actually Works, Part 2: Neural Networks",
+  "description": "A single neuron can only draw a straight line. So how does AI recognize faces, understand language, and make complex decisions? By connecting neurons into layers. In Part 2 of \"How AI Actually Works,\" we build a neural network from scratch — layers, forward passes, hidden neurons, and the universal approximation theorem. You'll see exactly how straight lines combine into curves, and why depth matters more than width.\n\nThis is Part 2 of a 10-part series covering AI from the ground up.\n\n#AI #DeepLearning #NeuralNetworks #MachineLearning #HowAIWorks #ForwardPass #HiddenLayers #UniversalApproximation #Education",
+  "tags": [
+    "neural networks",
+    "deep learning",
+    "machine learning",
+    "hidden layers",
+    "forward pass",
+    "universal approximation",
+    "network architecture",
+    "How AI Actually Works",
+    "AI education",
+    "neural network layers",
+    "deep learning basics",
+    "AI explained",
+    "neural network tutorial",
+    "activation functions",
+    "AI from scratch"
+  ],
+  "target_duration_minutes": 9.0,
+  "scenes": [
+    {
+      "scene_id": "scene_01_series_intro",
+      "scene_type": "title",
+      "title": "Series Intro",
+      "lines": [
+        {
+          "text": "A single neuron draws a straight line. That's useful, but limited. What happens when you connect thousands of them? The lines start combining into curves, surfaces, and boundaries complex enough to recognize a face or understand a sentence.",
+          "speaker": "narrator",
+          "voice_style": "dramatic",
+          "visual_cue": {
+            "cue_type": "title_card",
+            "description": "Series branded intro: 'HOW AI ACTUALLY WORKS' title materializes with series logo. Below it: 'Part 2: Neural Networks'. A single neuron with a straight decision line multiplies into a network, and the straight line morphs into a complex curved boundary.",
+            "build_steps": [
+              "Series logo animation plays (3-5 sec branded intro)",
+              "'HOW AI ACTUALLY WORKS' title materializes",
+              "'Part 2: Neural Networks' subtitle appears",
+              "Single neuron with straight line multiplies into network",
+              "Straight line morphs into curved decision boundary"
+            ]
+          },
+          "pause_after_ms": 500
+        },
+        {
+          "text": "This is How AI Actually Works, Part 2: Neural Networks.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "series_roadmap",
+            "description": "Horizontal roadmap of 10 dots. Part 1 is completed (dimmed checkmark), Part 2 glows bright (active), Parts 3-10 dimmed. Brief labels under each. Roadmap fades, Part 2 expands.",
+            "build_steps": [
+              "Roadmap of 10 dots appears",
+              "Part 1 shows completed checkmark",
+              "Part 2 glows bright as active",
+              "Roadmap fades, Part 2 expands"
+            ]
+          },
+          "pause_after_ms": 600
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_02_callback",
+      "scene_type": "explanation",
+      "title": "Callback: One Neuron, One Line",
+      "lines": [
+        {
+          "text": "In Part 1, we built an artificial neuron from scratch. Inputs, weights, bias, activation function. It takes in numbers, does a calculation, and outputs a decision. And we saw that what it really computes is a straight line through the data. Everything on one side gets one label, everything on the other side gets the other.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "recap_neuron",
+            "description": "The canonical neuron diagram from Part 1 reappears: inputs → weights → sum → bias → activation → output. Below it, the scatter plot with a straight decision boundary. This is a quick visual callback — familiar elements from Part 1.",
+            "build_steps": [
+              "Part 1 neuron diagram fades in (familiar visual)",
+              "Scatter plot appears below with straight decision line",
+              "Green dots on one side, red on the other",
+              "Label: 'One neuron = one straight line'"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "And we hit a wall. Some patterns can't be split by a single straight line. If the data curves, or spirals, or forms clusters, one neuron is stuck. So the natural question: what if we use more than one?",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "limitation_reminder",
+            "description": "The XOR scatter plot from Part 1 — data that can't be split by one line. A straight line tries different positions and fails each time. The single neuron icon shows a red X. Then a '?' appears: what if we use more?",
+            "build_steps": [
+              "XOR-like scatter plot appears",
+              "Straight line attempts and fails",
+              "Single neuron shows red X",
+              "Question mark: 'What if we use more?'"
+            ]
+          },
+          "pause_after_ms": 500
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_03_multiple_neurons",
+      "scene_type": "explanation",
+      "title": "Multiple Neurons, Multiple Lines",
+      "lines": [
+        {
+          "text": "Take two neurons and give them the same inputs. Each neuron has its own weights and its own bias, so each one draws a different line through the data. Two neurons, two lines. Those two lines divide the space into up to four regions.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "multi_neuron_lines",
+            "description": "Two neurons side by side, both receiving the same two inputs. Each neuron's decision line appears on a shared scatter plot — line 1 in blue, line 2 in purple. The two lines divide the plot into 4 regions, each lightly shaded.",
+            "build_steps": [
+              "Two neuron nodes appear, sharing the same inputs",
+              "Blue decision line draws from neuron 1",
+              "Purple decision line draws from neuron 2",
+              "Four regions form, each lightly shaded"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "Three neurons, three lines, even more regions. Each individual neuron is still just drawing a straight line — that hasn't changed. But the combination of multiple lines creates regions that no single line could. Think of it like cutting paper with straight scissors. One cut gives you two pieces. Two cuts, up to four. Three cuts, up to seven. Each cut is straight, but together they carve complex shapes.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "paper_cutting_analogy",
+            "description": "The scatter plot adds a third line (cyan), creating 7 regions. Then a side-by-side analogy: paper being cut with straight lines. 1 cut → 2 pieces, 2 cuts → 4 pieces, 3 cuts → 7 pieces. The parallel between straight cuts and straight decision lines is clear.",
+            "build_steps": [
+              "Third line (cyan) added — 7 regions visible",
+              "Paper cutting analogy appears beside the plot",
+              "1 cut → 2 pieces, 2 cuts → 4, 3 cuts → 7",
+              "Label: 'Straight lines, complex regions'"
+            ]
+          },
+          "pause_after_ms": 500
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_04_layers",
+      "scene_type": "explanation",
+      "title": "Organizing into Layers",
+      "lines": [
+        {
+          "text": "We don't just toss neurons into a pile. They're organized into layers. A neural network has at minimum three kinds. The input layer — that's just your raw data. For our student example, hours studied and hours slept. Two values in. The output layer produces the final answer. Pass or fail. One neuron with a sigmoid, outputting a probability.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "layer_diagram",
+            "description": "A clean network diagram builds from left to right. First, the input layer appears: two nodes labeled 'Hours Studied' and 'Hours Slept'. Then the output layer on the far right: one node labeled 'Pass/Fail' with 'σ' inside. A gap in the middle labeled '?' — where the hidden layers will go.",
+            "build_steps": [
+              "Input layer: 2 nodes (Hours Studied, Hours Slept)",
+              "Output layer: 1 node with σ (Pass/Fail)",
+              "Gap in the middle with '?'",
+              "Labels: 'Input Layer' and 'Output Layer'"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "And in between: hidden layers. This is where the real work happens. Each hidden layer is a row of neurons. Every neuron in one layer connects to every neuron in the next layer. The inputs feed into the hidden layer. The hidden layer feeds into the output. You can have one hidden layer, two, ten, a hundred. The more layers, the deeper the network. That's where the term deep learning comes from.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "hidden_layers_reveal",
+            "description": "The '?' gap fills in with a hidden layer of 3 neurons. Connection lines draw between every input node and every hidden node, then every hidden node to the output. Labels appear: 'Hidden Layer'. Then a second hidden layer slides in, with connections redrawing. A badge: 'Deep = many layers → Deep Learning'.",
+            "build_steps": [
+              "Hidden layer of 3 neurons fills the gap",
+              "Connections draw: all inputs to all hidden, all hidden to output",
+              "Label: 'Hidden Layer'",
+              "Second hidden layer optionally slides in",
+              "Badge: 'Deep Learning = many layers'"
+            ]
+          },
+          "pause_after_ms": 500
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_05_forward_pass",
+      "scene_type": "explanation",
+      "title": "The Forward Pass",
+      "lines": [
+        {
+          "text": "When data enters the network and flows through to produce an output, that's called a forward pass. Let's trace one. Our two inputs — six and seven — enter the network. They reach the hidden layer. Each hidden neuron receives both values. Neuron one multiplies by its weights, adds its bias, applies ReLU. It outputs two point four.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "forward_pass_trace",
+            "description": "The network diagram from scene 4, now with actual numbers. Inputs 6 and 7 enter from the left. Animated pulses travel along the connections to hidden neuron 1. The calculation appears: (6×0.5) + (7×0.2) + (-2.0) = 2.4. ReLU(2.4) = 2.4. The output value 2.4 glows in the neuron.",
+            "build_steps": [
+              "Values 6 and 7 enter the input layer",
+              "Pulses travel to hidden neuron 1",
+              "Calculation: (6×0.5) + (7×0.2) + (-2.0) = 2.4",
+              "ReLU applied: 2.4 → 2.4",
+              "Value 2.4 appears in neuron 1"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "Neuron two does the same with different weights. It outputs zero — ReLU killed the negative value. Neuron three outputs one point seven. Now those three outputs — two point four, zero, one point seven — become inputs for the output neuron. It multiplies, sums, applies sigmoid. Final answer: zero point nine two. Ninety-two percent chance of passing. Data in, answer out. That's a forward pass.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "forward_pass_complete",
+            "description": "Neurons 2 and 3 compute in parallel. Neuron 2 shows calculation ending in -0.8, ReLU clamps to 0. Neuron 3 outputs 1.7. The three values (2.4, 0, 1.7) flow to the output neuron. Output calculation shows sigmoid(result) = 0.92. A big '92%' result badge appears. The complete forward pass is visible: all values along every connection.",
+            "build_steps": [
+              "Neuron 2 computes: result negative → ReLU → 0",
+              "Neuron 3 computes: outputs 1.7",
+              "Three values flow to output neuron",
+              "Sigmoid applied → 0.92",
+              "Result badge: '92% pass'",
+              "Full forward pass visible with all values"
+            ]
+          },
+          "pause_after_ms": 500
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_06_what_hidden_neurons_learn",
+      "scene_type": "explanation",
+      "title": "What Hidden Neurons Learn",
+      "lines": [
+        {
+          "text": "What are those hidden neurons actually doing? Each one draws a straight line in the input space, just like a single neuron would. But they draw different lines. One might learn to separate 'studied a lot' from 'didn't study enough.' Another separates 'well rested' from 'sleep deprived.' A third captures a diagonal — some combination of both factors.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "hidden_neuron_lines",
+            "description": "A scatter plot (Hours Studied vs Hours Slept) with three decision lines overlaid, one per hidden neuron. Line 1 (blue, vertical-ish): separates study hours. Line 2 (purple, horizontal-ish): separates sleep hours. Line 3 (cyan, diagonal): captures a combination. Each line is labeled with its neuron.",
+            "build_steps": [
+              "Scatter plot with student data",
+              "Neuron 1's line draws: vertical-ish, separating study hours",
+              "Neuron 2's line draws: horizontal-ish, separating sleep",
+              "Neuron 3's line draws: diagonal combination",
+              "Three distinct regions of influence emerge"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "The output neuron then combines those responses. It learns to say: activate when neuron one is high and neuron three is high. That combination creates a region in the data — not a single line, but a bounded area. The boundary has corners and edges. It's not smooth, but it's already more complex than anything a single neuron could draw.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "region_combination",
+            "description": "The three lines from the previous visual are now shown creating a bounded triangular/polygonal region. The output neuron's combination logic is visualized: 'IF neuron 1 high AND neuron 3 high → PASS'. The resulting decision region is highlighted in green, with pass/fail dots mostly correctly classified. Comparison: single line (Part 1) vs multi-line region (now).",
+            "build_steps": [
+              "Three lines create a bounded region",
+              "Combination logic: 'N1 high AND N3 high'",
+              "Decision region highlights in green",
+              "Data points mostly correctly classified",
+              "Comparison: single line vs region"
+            ]
+          },
+          "pause_after_ms": 500
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_07_adding_depth",
+      "scene_type": "explanation",
+      "title": "Adding Depth: From Lines to Curves",
+      "lines": [
+        {
+          "text": "One hidden layer gives you regions made of straight edges. What about two hidden layers? The second layer takes the outputs of the first and combines them again. Regions get merged, intersected, subtracted. The boundaries get more intricate. Three layers can approximate curves, create holes, form islands in the decision space.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "depth_progression",
+            "description": "Three panels showing decision boundaries of increasing complexity. Panel 1 (1 hidden layer): straight-edged polygonal region. Panel 2 (2 hidden layers): more complex multi-sided region with concavities. Panel 3 (3 hidden layers): smooth-looking curved boundary. Each panel shows the network architecture above it. The progression from angular to smooth is the visual story.",
+            "build_steps": [
+              "Panel 1: 1 hidden layer → straight-edged polygon",
+              "Panel 2: 2 hidden layers → complex polygon with concavities",
+              "Panel 3: 3 hidden layers → smooth curved boundary",
+              "Network architecture shown above each panel",
+              "Arrow showing progression: 'More depth → smoother boundaries'"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "Remember the XOR pattern from Part 1? The one a single neuron couldn't solve? A network with one hidden layer of just two neurons handles it. Two lines that together carve out exactly the right regions. Concentric rings? Two hidden layers. Spirals? Three. Each layer builds on the layer before it, combining simple patterns into complex ones.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "xor_solved",
+            "description": "The XOR pattern reappears — but now with a small network (2-2-1) next to it. The two hidden neurons' lines appear, and together they correctly separate the XOR data. Checkmark. Then concentric rings with a deeper network solving it. Then spirals with an even deeper network. Each problem paired with the minimal network that solves it.",
+            "build_steps": [
+              "XOR pattern with 2-2-1 network",
+              "Two hidden neuron lines solve XOR — checkmark",
+              "Concentric rings with 2-layer network — solved",
+              "Spirals with 3-layer network — solved",
+              "Label: 'Deeper = more complex boundaries'"
+            ]
+          },
+          "pause_after_ms": 600
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_08_universal_approximation",
+      "scene_type": "explanation",
+      "title": "Universal Approximation",
+      "lines": [
+        {
+          "text": "In 1989, George Cybenko proved something remarkable. A neural network with just one hidden layer, given enough neurons, can approximate any continuous function to any desired accuracy. Any function. Classification, regression, probability distributions — all of it. This is the universal approximation theorem.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "universal_approximation",
+            "description": "A complex target function (smooth curve) is shown on a graph. Below it, a network with one hidden layer. As neurons are added to the layer (counter: 3, 5, 10, 20, 50), the network's approximation gets closer to the target curve. With enough neurons, the fit is nearly perfect. Badge: 'Universal Approximation Theorem — Cybenko, 1989'.",
+            "build_steps": [
+              "Target function: smooth complex curve on axes",
+              "Network with 3 hidden neurons: rough step-like approximation",
+              "Add neurons: 5, 10, 20 — approximation improves",
+              "50 neurons: nearly perfect fit",
+              "Badge: 'Universal Approximation — Cybenko 1989'"
+            ]
+          },
+          "pause_after_ms": 500
+        },
+        {
+          "text": "But there's a catch. 'Enough neurons' might mean millions in a single layer. That's impractical. In practice, deeper networks with fewer neurons per layer work much better. A network with three layers of thirty neurons often beats one layer of a thousand. Depth gives you composition. Each layer builds abstractions on top of the previous layer's abstractions. That's far more efficient than brute-forcing it with a massive single layer.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "depth_vs_width",
+            "description": "Side by side comparison. Left: a very wide network (1 hidden layer of ~50 neurons, visually overwhelming) labeled 'Wide: 1 × 1000'. Right: a deep narrow network (3 hidden layers of ~8 neurons each) labeled 'Deep: 3 × 30'. Both approximate the same curve, but the deep one uses far fewer parameters. A badge shows parameter counts. The deep network has a checkmark.",
+            "build_steps": [
+              "Left: wide network (1 huge hidden layer) — works but inefficient",
+              "Right: deep network (3 smaller layers) — works better",
+              "Both approximate same target curve",
+              "Parameter comparison: deep wins",
+              "Label: 'Depth > Width in practice'"
+            ]
+          },
+          "pause_after_ms": 500
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_09_depth_in_practice",
+      "scene_type": "explanation",
+      "title": "Depth in Practice",
+      "lines": [
+        {
+          "text": "Modern AI goes deep. AlexNet, the model that kicked off the deep learning revolution in 2012, had eight layers. VGGNet pushed to nineteen. ResNet in 2015 went to a hundred and fifty-two. GPT-3 has ninety-six transformer layers. Each generation keeps going deeper.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "depth_timeline",
+            "description": "A timeline showing landmark networks and their depth. AlexNet (2012): 8 layers visualized as 8 stacked bars. VGGNet (2014): 19 bars. ResNet (2015): 152 bars (dramatically taller). GPT-3 (2020): 96 bars. Each bar stack grows, showing the trend toward depth.",
+            "build_steps": [
+              "AlexNet (2012): 8 layer bars stack up",
+              "VGGNet (2014): 19 bars — taller",
+              "ResNet (2015): 152 bars — dramatically tall",
+              "GPT-3 (2020): 96 transformer layers",
+              "Trend line showing increasing depth"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "Why does depth work so well? Because each layer extracts increasingly abstract features. In an image recognition network, the first layer detects edges. The second combines edges into textures and corners. The third finds shapes. Later layers recognize eyes, wheels, windows. The final layers identify whole objects and scenes. Nobody programs these features. The network discovers them on its own, layer by layer.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "feature_hierarchy",
+            "description": "A vertical feature hierarchy showing what each layer of an image network learns. Layer 1: edge detectors (simple oriented lines). Layer 2: textures and corners (grid patterns, curve fragments). Layer 3: shapes (circles, rectangles). Layer 4: object parts (eyes, wheels). Layer 5: full objects (face, car). Arrows flow upward showing increasing abstraction. Label: 'Each layer builds on the last'.",
+            "build_steps": [
+              "Layer 1: simple edge detectors",
+              "Layer 2: textures and corners",
+              "Layer 3: basic shapes",
+              "Layer 4: object parts (eyes, wheels)",
+              "Layer 5: full objects (face, car)",
+              "Arrows showing upward abstraction"
+            ]
+          },
+          "pause_after_ms": 600
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_10_architecture_notation",
+      "scene_type": "explanation",
+      "title": "Network Architecture",
+      "lines": [
+        {
+          "text": "Quick vocabulary. The number of layers is the network's depth. The number of neurons per layer is the width. A network with two inputs, two hidden layers of sixty-four neurons each, and one output is written as 2-64-64-1. The connections between layers are edges, and each edge has a weight. The total count of weights plus biases is the parameter count.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "architecture_labels",
+            "description": "A clean network diagram labeled with architecture terms. Vertical bracket on the side labeled 'Depth: 4 layers'. Horizontal bracket across a layer labeled 'Width: 64 neurons'. Connection lines labeled 'Edge (weight)'. Notation below: '2-64-64-1'. A counter showing total parameters. Each term highlights as it's mentioned.",
+            "build_steps": [
+              "Network diagram: 2-64-64-1 architecture",
+              "Label 'Depth' with vertical bracket",
+              "Label 'Width' with horizontal bracket",
+              "Connections labeled 'Edges (weights)'",
+              "Notation: '2-64-64-1'",
+              "Parameter count total"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "When you hear 'GPT-4 has one point eight trillion parameters,' those are all weights and biases in neurons. Same building blocks we've been looking at. The same multiply-sum-activate pattern from Part 1, repeated one point eight trillion times.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "scale_callback",
+            "description": "The 2-64-64-1 network zooms out to reveal it's a tiny piece of a massive network. A counter animates: parameters climb from 8,385 (our small network) to 1.8T. The visual zooms out further and further, the network becoming a dense cloud of connections. Badge: 'GPT-4: ~1.8 trillion parameters — same building block'.",
+            "build_steps": [
+              "Small network zooms out into massive network",
+              "Parameter counter: 8,385 → 1.8 trillion",
+              "Network becomes dense cloud at scale",
+              "Badge: 'Same multiply-sum-activate, 1.8T times'"
+            ]
+          },
+          "pause_after_ms": 500
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "scene_id": "scene_11_recap_teaser",
+      "scene_type": "summary",
+      "title": "Recap and What's Next",
+      "lines": [
+        {
+          "text": "Here's what we covered. Neurons are organized into layers: input, hidden, and output. Data flows forward through the network — that's a forward pass. Each hidden neuron still draws a straight line, but layers of them combine to form complex decision boundaries. With enough depth, a network can approximate any function. Straight lines all the way down, but the composition creates curves.",
+          "speaker": "narrator",
+          "voice_style": "neutral",
+          "visual_cue": {
+            "cue_type": "recap_diagram",
+            "description": "A split visual. Left: the canonical network diagram with labeled layers, connections, and a forward pass arrow. Right: decision boundary progression — 1 neuron (line), 1 layer (polygon), 2 layers (complex region), 3 layers (smooth curve). Each component highlights as narrated. This is the canonical network visual for the series.",
+            "build_steps": [
+              "Network diagram with labeled components",
+              "Decision boundary progression: line → polygon → curve",
+              "Components highlight as mentioned",
+              "Canonical network visual settles"
+            ]
+          },
+          "pause_after_ms": 400
+        },
+        {
+          "text": "But we've been assuming the weights are already set. We haven't explained how they get there. How does a network with thousands of neurons and millions of connections find the right weights? It can't try every combination — there are more possibilities than atoms in the universe. It needs a smarter strategy. That's Part 3: how neural networks learn.",
+          "speaker": "narrator",
+          "voice_style": "dramatic",
+          "visual_cue": {
+            "cue_type": "teaser",
+            "description": "The network diagram's weights turn into animated question marks, cycling through random values. A loss landscape appears — a 3D surface with valleys and peaks. A ball sits at a random high point. Text: 'Next: Part 3 — How Neural Networks Learn'. Series roadmap reappears with Part 3 pulsing.",
+            "build_steps": [
+              "Network weights become question marks",
+              "Loss landscape appears (3D surface with valleys)",
+              "Ball at random high point — needs to find the valley",
+              "'Next: Part 3 — How Neural Networks Learn'",
+              "Series roadmap, Part 3 pulsing"
+            ]
+          },
+          "pause_after_ms": 800
+        }
+      ],
+      "transition": "fade"
+    }
+  ],
+  "thumbnail_prompt": "Bold text 'NEURAL NETWORKS' with a layered network diagram showing inputs flowing through hidden layers to output. Decision boundary morphing from straight line to curve. 'HOW AI ACTUALLY WORKS' series badge. Dark tech aesthetic with orange and blue accents. 'Part 2' badge."
+}

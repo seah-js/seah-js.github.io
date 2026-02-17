@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Forward Pass</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/MotionPathPlugin.min.js"></script>
+<style>
+:root {
+  --bg: #0b0f1a; --surface: #151d30; --text: #e8ecf4;
+  --muted: #8892a8; --dim: #4a5568; --accent: #f97316;
+  --blue: #3b82f6; --purple: #8b5cf6; --red: #ef4444;
+  --green: #10b981; --cyan: #06b6d4;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif;
+  width:1920px; height:1080px; overflow:hidden; position:relative;
+}
+body::after {
+  content:''; position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:1000;
+}
+.narration-sub{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);text-align:center;padding:10px 32px;max-width:1600px;font-size:18px;color:#8892a8;opacity:0;z-index:100;transition:opacity 0.3s;text-shadow:0 0 6px rgba(0,0,0,0.9),0 0 16px rgba(0,0,0,0.6);}
+</style>
+</head>
+<body>
+
+<svg id="mainSvg" width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;top:0;left:0;">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <filter id="bigGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+
+    <!-- Gradient for active connections -->
+    <linearGradient id="pulseGradL" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#3b82f6" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="pulseGradR" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#10b981" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- OBS background rect -->
+  <rect width="1920" height="1080" fill="#0b0f1a"/>
+
+  <!-- Scene title -->
+  <text id="sceneTitle" x="960" y="60" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="32" fill="#8892a8">The Forward Pass</text>
+
+  <!-- ========================================== -->
+  <!-- NETWORK STRUCTURE                          -->
+  <!-- ========================================== -->
+
+  <!-- Connection lines: Input to Hidden layer -->
+  <g id="connInputHidden">
+    <!-- I1 (x=300, y=340) to H1 (x=820, y=220) -->
+    <line id="connI1H1" x1="360" y1="340" x2="760" y2="220" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+    <!-- I1 to H2 (x=820, y=440) -->
+    <line id="connI1H2" x1="360" y1="340" x2="760" y2="440" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+    <!-- I1 to H3 (x=820, y=660) -->
+    <line id="connI1H3" x1="360" y1="340" x2="760" y2="660" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+    <!-- I2 (x=300, y=560) to H1 -->
+    <line id="connI2H1" x1="360" y1="560" x2="760" y2="220" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+    <!-- I2 to H2 -->
+    <line id="connI2H2" x1="360" y1="560" x2="760" y2="440" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+    <!-- I2 to H3 -->
+    <line id="connI2H3" x1="360" y1="560" x2="760" y2="660" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+  </g>
+
+  <!-- Connection lines: Hidden to Output layer -->
+  <g id="connHiddenOutput">
+    <!-- H1 to O (x=1500, y=440) -->
+    <line id="connH1O" x1="880" y1="220" x2="1440" y2="440" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+    <!-- H2 to O -->
+    <line id="connH2O" x1="880" y1="440" x2="1440" y2="440" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+    <!-- H3 to O -->
+    <line id="connH3O" x1="880" y1="660" x2="1440" y2="440" stroke="#4a5568" stroke-width="2" opacity="0.3"/>
+  </g>
+
+  <!-- Weight labels on input-hidden connections -->
+  <g id="weightsIH" font-family="IBM Plex Mono" font-size="20" fill="#4a5568">
+    <text id="wI1H1" x="520" y="262" text-anchor="middle">0.5</text>
+    <text id="wI1H2" x="520" y="402" text-anchor="middle">-0.3</text>
+    <text id="wI1H3" x="520" y="522" text-anchor="middle">0.4</text>
+    <text id="wI2H1" x="580" y="308" text-anchor="middle">0.2</text>
+    <text id="wI2H2" x="580" y="478" text-anchor="middle">0.1</text>
+    <text id="wI2H3" x="580" y="628" text-anchor="middle">-0.1</text>
+  </g>
+
+  <!-- Weight labels on hidden-output connections -->
+  <g id="weightsHO" font-family="IBM Plex Mono" font-size="20" fill="#4a5568">
+    <text id="wH1O" x="1160" y="310" text-anchor="middle">0.6</text>
+    <text id="wH2O" x="1160" y="432" text-anchor="middle">0.3</text>
+    <text id="wH3O" x="1160" y="570" text-anchor="middle">0.8</text>
+  </g>
+
+  <!-- ── INPUT LAYER ── -->
+  <g id="inputLayer">
+    <!-- Layer label -->
+    <text id="inputLabel" x="300" y="150" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Input Layer</text>
+
+    <!-- Input 1: Hours Studied -->
+    <g id="input1">
+      <circle id="input1Ring" cx="300" cy="340" r="52" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.15"/>
+      <circle cx="300" cy="340" r="46" fill="#151d30" stroke="#3b82f6" stroke-width="2.5"/>
+      <text id="input1Val" x="300" y="348" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="36" fill="#3b82f6" opacity="0">6</text>
+      <text x="300" y="410" text-anchor="middle" font-family="Outfit" font-weight="300" font-size="20" fill="#8892a8">Hours Studied</text>
+    </g>
+
+    <!-- Input 2: Hours Slept -->
+    <g id="input2">
+      <circle id="input2Ring" cx="300" cy="560" r="52" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.15"/>
+      <circle cx="300" cy="560" r="46" fill="#151d30" stroke="#3b82f6" stroke-width="2.5"/>
+      <text id="input2Val" x="300" y="568" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="36" fill="#3b82f6" opacity="0">7</text>
+      <text x="300" y="630" text-anchor="middle" font-family="Outfit" font-weight="300" font-size="20" fill="#8892a8">Hours Slept</text>
+    </g>
+  </g>
+
+  <!-- ── HIDDEN LAYER ── -->
+  <g id="hiddenLayer">
+    <!-- Layer label -->
+    <text id="hiddenLabel" x="820" y="110" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Hidden Layer</text>
+
+    <!-- H1 -->
+    <g id="h1Node">
+      <circle id="h1Ring" cx="820" cy="220" r="52" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.15"/>
+      <circle id="h1Bg" cx="820" cy="220" r="46" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="820" y="210" text-anchor="middle" font-family="Outfit" font-weight="500" font-size="20" fill="#8b5cf6" opacity="0.6">H</text>
+      <text x="834" y="224" text-anchor="start" font-family="Outfit" font-weight="500" font-size="16" fill="#8b5cf6" opacity="0.6">1</text>
+      <!-- Output value (hidden until computed) -->
+      <text id="h1Val" x="820" y="248" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#10b981" opacity="0">2.4</text>
+    </g>
+
+    <!-- H2 -->
+    <g id="h2Node">
+      <circle id="h2Ring" cx="820" cy="440" r="52" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.15"/>
+      <circle id="h2Bg" cx="820" cy="440" r="46" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="820" y="430" text-anchor="middle" font-family="Outfit" font-weight="500" font-size="20" fill="#8b5cf6" opacity="0.6">H</text>
+      <text x="834" y="444" text-anchor="start" font-family="Outfit" font-weight="500" font-size="16" fill="#8b5cf6" opacity="0.6">2</text>
+      <text id="h2Val" x="820" y="468" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#ef4444" opacity="0">0</text>
+    </g>
+
+    <!-- H3 -->
+    <g id="h3Node">
+      <circle id="h3Ring" cx="820" cy="660" r="52" fill="none" stroke="#8b5cf6" stroke-width="2" opacity="0.15"/>
+      <circle id="h3Bg" cx="820" cy="660" r="46" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+      <text x="820" y="650" text-anchor="middle" font-family="Outfit" font-weight="500" font-size="20" fill="#8b5cf6" opacity="0.6">H</text>
+      <text x="834" y="664" text-anchor="start" font-family="Outfit" font-weight="500" font-size="16" fill="#8b5cf6" opacity="0.6">3</text>
+      <text id="h3Val" x="820" y="688" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#10b981" opacity="0">1.7</text>
+    </g>
+  </g>
+
+  <!-- ── OUTPUT LAYER ── -->
+  <g id="outputLayer">
+    <!-- Layer label -->
+    <text id="outputLabel" x="1500" y="330" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Output</text>
+
+    <g id="outNode">
+      <circle id="outRing" cx="1500" cy="440" r="58" fill="none" stroke="#f97316" stroke-width="2" opacity="0.15"/>
+      <circle id="outBg" cx="1500" cy="440" r="50" fill="#151d30" stroke="#f97316" stroke-width="2.5"/>
+      <text x="1500" y="436" text-anchor="middle" font-family="Outfit" font-weight="500" font-size="20" fill="#f97316" opacity="0.6">\u03c3</text>
+      <text id="outVal" x="1500" y="464" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#10b981" opacity="0">0.92</text>
+    </g>
+  </g>
+
+  <!-- ── ANIMATED PULSE DOTS (travel along connections) ── -->
+  <!-- Input to H1 pulses -->
+  <circle id="pulseI1H1" cx="360" cy="340" r="6" fill="#3b82f6" filter="url(#glow)" opacity="0"/>
+  <circle id="pulseI2H1" cx="360" cy="560" r="6" fill="#3b82f6" filter="url(#glow)" opacity="0"/>
+  <!-- Input to H2 pulses -->
+  <circle id="pulseI1H2" cx="360" cy="340" r="6" fill="#3b82f6" filter="url(#glow)" opacity="0"/>
+  <circle id="pulseI2H2" cx="360" cy="560" r="6" fill="#3b82f6" filter="url(#glow)" opacity="0"/>
+  <!-- Input to H3 pulses -->
+  <circle id="pulseI1H3" cx="360" cy="340" r="6" fill="#3b82f6" filter="url(#glow)" opacity="0"/>
+  <circle id="pulseI2H3" cx="360" cy="560" r="6" fill="#3b82f6" filter="url(#glow)" opacity="0"/>
+  <!-- Hidden to Output pulses -->
+  <circle id="pulseH1O" cx="880" cy="220" r="6" fill="#10b981" filter="url(#glow)" opacity="0"/>
+  <circle id="pulseH2O" cx="880" cy="440" r="6" fill="#10b981" filter="url(#glow)" opacity="0"/>
+  <circle id="pulseH3O" cx="880" cy="660" r="6" fill="#10b981" filter="url(#glow)" opacity="0"/>
+
+  <!-- ── CALCULATION CHIPS ── -->
+
+  <!-- H1 Calculation chip -->
+  <g id="calcH1">
+    <rect x="940" y="140" width="500" height="100" rx="14" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+    <text x="960" y="176" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#e8ecf4">
+      (6<tspan fill="#8892a8">\u00d7</tspan>0.5) + (7<tspan fill="#8892a8">\u00d7</tspan>0.2) + (<tspan fill="#ef4444">-2.0</tspan>)
+    </text>
+    <text id="calcH1Result" x="960" y="218" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#f97316">
+      = 3.0 + 1.4 - 2.0 = <tspan fill="#10b981">2.4</tspan>
+    </text>
+  </g>
+
+  <!-- H1 ReLU badge -->
+  <g id="reluH1">
+    <rect x="1000" y="248" width="340" height="46" rx="10" fill="#151d30" stroke="#10b981" stroke-width="2"/>
+    <text x="1170" y="278" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="20" fill="#10b981">
+      ReLU(2.4) = 2.4 \u2713
+    </text>
+  </g>
+
+  <!-- H2 Calculation chip -->
+  <g id="calcH2">
+    <rect x="940" y="360" width="500" height="100" rx="14" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+    <text x="960" y="396" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#e8ecf4">
+      (6<tspan fill="#8892a8">\u00d7</tspan>-0.3) + (7<tspan fill="#8892a8">\u00d7</tspan>0.1) + (<tspan fill="#ef4444">-0.6</tspan>)
+    </text>
+    <text id="calcH2Result" x="960" y="438" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#f97316">
+      = -1.8 + 0.7 - 0.6 = <tspan fill="#ef4444">-1.7</tspan>
+    </text>
+  </g>
+
+  <!-- H2 ReLU badge (clamped to zero) -->
+  <g id="reluH2">
+    <rect x="1000" y="468" width="380" height="46" rx="10" fill="#151d30" stroke="#ef4444" stroke-width="2"/>
+    <text x="1190" y="498" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="20" fill="#ef4444">
+      ReLU(-1.7) = 0  \u2717 killed
+    </text>
+  </g>
+
+  <!-- H3 Calculation chip -->
+  <g id="calcH3">
+    <rect x="940" y="580" width="500" height="100" rx="14" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+    <text x="960" y="616" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#e8ecf4">
+      (6<tspan fill="#8892a8">\u00d7</tspan>0.4) + (7<tspan fill="#8892a8">\u00d7</tspan>-0.1) + (<tspan fill="#ef4444">0.0</tspan>)
+    </text>
+    <text id="calcH3Result" x="960" y="658" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#f97316">
+      = 2.4 - 0.7 + 0.0 = <tspan fill="#10b981">1.7</tspan>
+    </text>
+  </g>
+
+  <!-- H3 ReLU badge -->
+  <g id="reluH3">
+    <rect x="1000" y="688" width="340" height="46" rx="10" fill="#151d30" stroke="#10b981" stroke-width="2"/>
+    <text x="1170" y="718" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="20" fill="#10b981">
+      ReLU(1.7) = 1.7 \u2713
+    </text>
+  </g>
+
+  <!-- Output neuron calculation chip -->
+  <g id="calcOut">
+    <rect x="1060" y="540" width="560" height="100" rx="14" fill="#151d30" stroke="#f97316" stroke-width="2.5"/>
+    <text x="1120" y="576" font-family="IBM Plex Mono" font-weight="500" font-size="20" fill="#e8ecf4">
+      (2.4<tspan fill="#8892a8">\u00d7</tspan>0.6)+(0<tspan fill="#8892a8">\u00d7</tspan>0.3)+(1.7<tspan fill="#8892a8">\u00d7</tspan>0.8)+(<tspan fill="#ef4444">-0.4</tspan>)
+    </text>
+    <text id="calcOutResult" x="1120" y="618" font-family="IBM Plex Mono" font-weight="600" font-size="22" fill="#f97316">
+      = 1.44 + 0 + 1.36 - 0.4 = 2.4
+    </text>
+  </g>
+
+  <!-- Sigmoid badge -->
+  <g id="sigmoidBadge">
+    <rect x="1160" y="648" width="380" height="46" rx="10" fill="#151d30" stroke="#f97316" stroke-width="2"/>
+    <text x="1350" y="678" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="20" fill="#f97316">
+      \u03c3(2.4) = 0.92
+    </text>
+  </g>
+
+  <!-- ── RESULT BADGE ── -->
+  <g id="resultBadge">
+    <!-- Glow backdrop -->
+    <rect id="resultGlow" x="1280" y="740" width="460" height="100" rx="20" fill="#10b981" opacity="0.08" filter="url(#bigGlow)"/>
+    <rect x="1300" y="750" width="420" height="80" rx="16" fill="#151d30" stroke="#10b981" stroke-width="3"/>
+    <text x="1510" y="800" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="42" fill="#10b981">92%</text>
+    <text x="1510" y="822" text-anchor="middle" font-family="Outfit" font-weight="500" font-size="20" fill="#10b981" letter-spacing="3">PASS</text>
+  </g>
+
+  <!-- Forward pass arrow label (bottom) -->
+  <g id="forwardArrow">
+    <line x1="200" y1="820" x2="1720" y2="820" stroke="#8892a8" stroke-width="2" stroke-dasharray="8,6" opacity="0.3"/>
+    <polygon points="1720,814 1740,820 1720,826" fill="#8892a8" opacity="0.3"/>
+    <text x="960" y="854" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8" opacity="0.6">Data in \u2192 Answer out</text>
+  </g>
+
+</svg>
+
+<!-- Subtitles -->
+<div class="narration-sub" id="sub"></div>
+
+<script>
+gsap.registerPlugin(MotionPathPlugin);
+
+// ── Subtitle engine ──
+var T0 = performance.now();
+var subs = [
+  {"start": 0, "end": 7143, "text": "When data enters the network and flows through to produce an output, that\u2019s called a forward pass."},
+  {"start": 7143, "end": 8404, "text": "Let\u2019s trace one."},
+  {"start": 8404, "end": 12606, "text": "Our two inputs \u2014 six and seven \u2014 enter the network."},
+  {"start": 12606, "end": 14707, "text": "They reach the hidden layer."},
+  {"start": 14707, "end": 17228, "text": "Each hidden neuron receives both values."},
+  {"start": 17228, "end": 21850, "text": "Neuron one multiplies by its weights, adds its bias, applies ReLU."},
+  {"start": 21850, "end": 23951, "text": "It outputs two point four."},
+  {"start": 24648, "end": 28353, "text": "Neuron two does the same with different weights."},
+  {"start": 28353, "end": 32521, "text": "It outputs zero \u2014 ReLU killed the negative value."},
+  {"start": 32521, "end": 35300, "text": "Neuron three outputs one point seven."},
+  {"start": 35300, "end": 43173, "text": "Now those three outputs \u2014 two point four, zero, one point seven \u2014 become inputs for the output neuron."},
+  {"start": 43173, "end": 45489, "text": "It multiplies, sums, applies sigmoid."},
+  {"start": 45489, "end": 48267, "text": "Final answer: zero point nine two."},
+  {"start": 48267, "end": 50583, "text": "Ninety-two percent chance of passing."},
+  {"start": 50583, "end": 52436, "text": "Data in, answer out."},
+  {"start": 52436, "end": 54288, "text": "That\u2019s a forward pass."}
+];
+(function tick() {
+  var t = performance.now() - (window.T0_override || T0);
+  var el = document.getElementById("sub");
+  var active = null;
+  for (var i = 0; i < subs.length; i++) { if (t >= subs[i].start && t < subs[i].end) { active = subs[i].text; break; } }
+  el.textContent = active || '';
+  el.style.opacity = active ? '1' : '0';
+  requestAnimationFrame(tick);
+})();
+
+// ── Initial states ──────────────────────────────────
+gsap.set("#sceneTitle", { opacity: 0, y: 14 });
+
+// Network structure
+gsap.set("#connInputHidden", { opacity: 0 });
+gsap.set("#connHiddenOutput", { opacity: 0 });
+gsap.set("#weightsIH", { opacity: 0 });
+gsap.set("#weightsHO", { opacity: 0 });
+gsap.set("#inputLabel", { opacity: 0 });
+gsap.set("#hiddenLabel", { opacity: 0 });
+gsap.set("#outputLabel", { opacity: 0 });
+gsap.set("#input1", { opacity: 0, scale: 0.88, svgOrigin: "300 340" });
+gsap.set("#input2", { opacity: 0, scale: 0.88, svgOrigin: "300 560" });
+gsap.set("#h1Node", { opacity: 0, scale: 0.88, svgOrigin: "820 220" });
+gsap.set("#h2Node", { opacity: 0, scale: 0.88, svgOrigin: "820 440" });
+gsap.set("#h3Node", { opacity: 0, scale: 0.88, svgOrigin: "820 660" });
+gsap.set("#outNode", { opacity: 0, scale: 0.88, svgOrigin: "1500 440" });
+
+// Input values
+gsap.set("#input1Val", { opacity: 0, scale: 0.8, svgOrigin: "300 348" });
+gsap.set("#input2Val", { opacity: 0, scale: 0.8, svgOrigin: "300 568" });
+
+// Calculation chips
+gsap.set("#calcH1", { opacity: 0, y: 14 });
+gsap.set("#reluH1", { opacity: 0, y: 10 });
+gsap.set("#calcH2", { opacity: 0, y: 14 });
+gsap.set("#reluH2", { opacity: 0, y: 10 });
+gsap.set("#calcH3", { opacity: 0, y: 14 });
+gsap.set("#reluH3", { opacity: 0, y: 10 });
+gsap.set("#calcOut", { opacity: 0, y: 14 });
+gsap.set("#sigmoidBadge", { opacity: 0, y: 10 });
+
+// Result badge
+gsap.set("#resultBadge", { opacity: 0, scale: 0.8, svgOrigin: "1510 790" });
+
+// Forward arrow
+gsap.set("#forwardArrow", { opacity: 0 });
+
+// ── Ambient animations ──────────────────────────────
+// Neuron breathing
+gsap.to("#input1Ring", { scale: 1.06, svgOrigin: "300 340", duration: 2.5, ease: "sine.inOut", yoyo: true, repeat: -1 });
+gsap.to("#input2Ring", { scale: 1.06, svgOrigin: "300 560", duration: 2.8, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.3 });
+gsap.to("#h1Ring", { scale: 1.06, svgOrigin: "820 220", duration: 2.3, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.5 });
+gsap.to("#h2Ring", { scale: 1.06, svgOrigin: "820 440", duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.8 });
+gsap.to("#h3Ring", { scale: 1.06, svgOrigin: "820 660", duration: 2.4, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 1.1 });
+gsap.to("#outRing", { scale: 1.06, svgOrigin: "1500 440", duration: 2.7, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.6 });
+
+// Result glow pulse
+gsap.to("#resultGlow", { opacity: 0.2, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 48 });
+
+// ── Helper: animate pulse dot along a line ──────────
+function animatePulse(dotId, x1, y1, x2, y2, tl, startTime, dur) {
+  tl.set(dotId, { attr: { cx: x1, cy: y1 }, opacity: 0 }, startTime);
+  tl.to(dotId, { opacity: 1, duration: 0.15 }, startTime);
+  tl.to(dotId, { attr: { cx: x2, cy: y2 }, duration: dur, ease: "power1.inOut" }, startTime);
+  tl.to(dotId, { opacity: 0, duration: 0.2 }, startTime + dur - 0.2);
+}
+
+// ── Master timeline ─────────────────────────────────
+var tl = gsap.timeline();
+
+// =====================================================
+// SUB 1 (0-7.1s): "When data enters the network..."
+// Network structure fades in
+// =====================================================
+tl.to("#sceneTitle", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.3)
+  .to("#inputLabel", { opacity: 1, duration: 0.4, ease: "power2.out" }, 0.8)
+  .to("#input1", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 1.0)
+  .to("#input2", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 1.3)
+  .to("#connInputHidden", { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.8)
+  .to("#hiddenLabel", { opacity: 1, duration: 0.4, ease: "power2.out" }, 2.2)
+  .to("#h1Node", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 2.4)
+  .to("#h2Node", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 2.7)
+  .to("#h3Node", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 3.0)
+  .to("#connHiddenOutput", { opacity: 1, duration: 0.6, ease: "power2.out" }, 3.4)
+  .to("#outputLabel", { opacity: 1, duration: 0.4, ease: "power2.out" }, 3.6)
+  .to("#outNode", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 3.8)
+  .to("#weightsIH", { opacity: 1, duration: 0.5, ease: "power2.out" }, 4.4)
+  .to("#weightsHO", { opacity: 1, duration: 0.5, ease: "power2.out" }, 4.8)
+  .to("#forwardArrow", { opacity: 1, duration: 0.6, ease: "power2.out" }, 5.5)
+
+// =====================================================
+// SUB 2 (7.1-8.4s): "Let's trace one."
+// Quick pause, forward arrow pulses
+// =====================================================
+
+// =====================================================
+// SUB 3 (8.4-12.6s): "Our two inputs -- six and seven -- enter the network."
+// Input values appear
+// =====================================================
+  .to("#input1Val", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 8.6)
+  .to("#input2Val", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" }, 9.2)
+  // Pulse input rings when values appear
+  .to("#input1Ring", {
+    attr: { "stroke-width": 3, opacity: 0.5 }, duration: 0.3, ease: "power2.out"
+  }, 8.6)
+  .to("#input1Ring", {
+    attr: { "stroke-width": 2, opacity: 0.15 }, duration: 0.5
+  }, 9.0)
+  .to("#input2Ring", {
+    attr: { "stroke-width": 3, opacity: 0.5 }, duration: 0.3, ease: "power2.out"
+  }, 9.2)
+  .to("#input2Ring", {
+    attr: { "stroke-width": 2, opacity: 0.15 }, duration: 0.5
+  }, 9.6)
+
+// =====================================================
+// SUB 4 (12.6-14.7s): "They reach the hidden layer."
+// Pulse dots travel from inputs to hidden neurons
+// =====================================================
+;
+animatePulse("#pulseI1H1", 360, 340, 760, 220, tl, 12.6, 1.2);
+animatePulse("#pulseI2H1", 360, 560, 760, 220, tl, 12.8, 1.2);
+animatePulse("#pulseI1H2", 360, 340, 760, 440, tl, 12.7, 1.2);
+animatePulse("#pulseI2H2", 360, 560, 760, 440, tl, 12.9, 1.2);
+animatePulse("#pulseI1H3", 360, 340, 760, 660, tl, 12.8, 1.2);
+animatePulse("#pulseI2H3", 360, 560, 760, 660, tl, 13.0, 1.2);
+
+// Highlight connections as pulses travel
+tl.to("#connI1H1, #connI2H1, #connI1H2, #connI2H2, #connI1H3, #connI2H3", {
+    attr: { stroke: "#3b82f6" }, opacity: 0.7, duration: 0.3
+  }, 12.6)
+  .to("#connI1H1, #connI2H1, #connI1H2, #connI2H2, #connI1H3, #connI2H3", {
+    attr: { stroke: "#4a5568" }, opacity: 0.3, duration: 0.5
+  }, 14.0)
+
+// =====================================================
+// SUB 5 (14.7-17.2s): "Each hidden neuron receives both values."
+// Hidden neurons glow briefly
+// =====================================================
+  .to("#h1Bg, #h2Bg, #h3Bg", {
+    attr: { "stroke-width": 4 }, duration: 0.3, ease: "power2.out"
+  }, 14.8)
+  .to("#h1Bg, #h2Bg, #h3Bg", {
+    attr: { "stroke-width": 2.5 }, duration: 0.5
+  }, 15.4)
+
+// =====================================================
+// SUB 6 (17.2-21.9s): "Neuron one multiplies by its weights, adds its bias, applies ReLU."
+// H1 calculation chip appears
+// =====================================================
+  .to("#calcH1", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 17.4)
+  // Highlight H1 connections
+  .to("#connI1H1, #connI2H1", {
+    attr: { stroke: "#8b5cf6" }, opacity: 0.8, duration: 0.3
+  }, 17.4)
+  // ReLU badge
+  .to("#reluH1", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 20.0)
+
+// =====================================================
+// SUB 7 (21.9-24.0s): "It outputs two point four."
+// Value appears in H1 node, calc chip fades
+// =====================================================
+  .to("#h1Val", { opacity: 1, duration: 0.4, ease: "power2.out" }, 22.0)
+  // Pulse H1 green
+  .to("#h1Bg", {
+    attr: { stroke: "#10b981", "stroke-width": 4 }, duration: 0.3, ease: "power2.out"
+  }, 22.0)
+  .to("#h1Bg", {
+    attr: { "stroke-width": 2.5 }, duration: 0.5
+  }, 22.5)
+  // Fade calc chip
+  .to("#calcH1", { opacity: 0.2, duration: 0.5 }, 22.8)
+  .to("#reluH1", { opacity: 0.2, duration: 0.5 }, 22.8)
+  // Dim H1 connections back
+  .to("#connI1H1, #connI2H1", {
+    attr: { stroke: "#4a5568" }, opacity: 0.3, duration: 0.4
+  }, 23.0)
+
+// =====================================================
+// SUB 8 (24.6-28.4s): "Neuron two does the same with different weights."
+// H2 calculation chip appears
+// =====================================================
+  .to("#calcH1, #reluH1", { opacity: 0, duration: 0.3 }, 24.5)
+  .to("#calcH2", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 24.8)
+  .to("#connI1H2, #connI2H2", {
+    attr: { stroke: "#8b5cf6" }, opacity: 0.8, duration: 0.3
+  }, 24.8)
+
+// =====================================================
+// SUB 9 (28.4-32.5s): "It outputs zero -- ReLU killed the negative value."
+// ReLU clamps, zero flashes red
+// =====================================================
+  .to("#reluH2", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 28.5)
+  .to("#h2Val", { opacity: 1, duration: 0.4, ease: "power2.out" }, 29.2)
+  // Flash H2 red briefly
+  .to("#h2Bg", {
+    attr: { stroke: "#ef4444", "stroke-width": 4 }, duration: 0.3, ease: "power2.out"
+  }, 29.2)
+  .to("#h2Bg", {
+    attr: { stroke: "#ef4444", "stroke-width": 2.5 }, duration: 0.8
+  }, 29.7)
+  // H2 zero val flashes
+  .to("#h2Val", { scale: 1.3, svgOrigin: "820 468", duration: 0.2, ease: "power2.out" }, 29.4)
+  .to("#h2Val", { scale: 1, svgOrigin: "820 468", duration: 0.4 }, 29.6)
+  // Dim calc chip
+  .to("#calcH2", { opacity: 0.2, duration: 0.5 }, 30.5)
+  .to("#reluH2", { opacity: 0.2, duration: 0.5 }, 30.5)
+  .to("#connI1H2, #connI2H2", {
+    attr: { stroke: "#4a5568" }, opacity: 0.3, duration: 0.4
+  }, 30.8)
+
+// =====================================================
+// SUB 10 (32.5-35.3s): "Neuron three outputs one point seven."
+// H3 calculation
+// =====================================================
+  .to("#calcH2, #reluH2", { opacity: 0, duration: 0.3 }, 32.3)
+  .to("#calcH3", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 32.6)
+  .to("#connI1H3, #connI2H3", {
+    attr: { stroke: "#8b5cf6" }, opacity: 0.8, duration: 0.3
+  }, 32.6)
+  .to("#reluH3", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 33.2)
+  .to("#h3Val", { opacity: 1, duration: 0.4, ease: "power2.out" }, 33.6)
+  .to("#h3Bg", {
+    attr: { stroke: "#10b981", "stroke-width": 4 }, duration: 0.3, ease: "power2.out"
+  }, 33.6)
+  .to("#h3Bg", {
+    attr: { "stroke-width": 2.5 }, duration: 0.5
+  }, 34.0)
+  .to("#calcH3", { opacity: 0, duration: 0.4 }, 34.5)
+  .to("#reluH3", { opacity: 0, duration: 0.4 }, 34.5)
+  .to("#connI1H3, #connI2H3", {
+    attr: { stroke: "#4a5568" }, opacity: 0.3, duration: 0.4
+  }, 34.8)
+
+// =====================================================
+// SUB 11 (35.3-43.2s): "Now those three outputs ... become inputs for the output neuron."
+// Pulse dots travel from hidden to output
+// =====================================================
+;
+animatePulse("#pulseH1O", 880, 220, 1440, 440, tl, 36.0, 1.5);
+animatePulse("#pulseH2O", 880, 440, 1440, 440, tl, 36.3, 1.5);
+animatePulse("#pulseH3O", 880, 660, 1440, 440, tl, 36.6, 1.5);
+
+// Highlight output connections
+tl.to("#connH1O, #connH2O, #connH3O", {
+    attr: { stroke: "#10b981" }, opacity: 0.7, duration: 0.3
+  }, 36.0)
+  .to("#connH1O, #connH2O, #connH3O", {
+    attr: { stroke: "#4a5568" }, opacity: 0.3, duration: 0.5
+  }, 38.0)
+
+  // Values on connections flash as they travel
+  .to("#wH1O", { fill: "#10b981", duration: 0.3 }, 36.0)
+  .to("#wH2O", { fill: "#10b981", duration: 0.3 }, 36.3)
+  .to("#wH3O", { fill: "#10b981", duration: 0.3 }, 36.6)
+  .to("#wH1O, #wH2O, #wH3O", { fill: "#4a5568", duration: 0.5 }, 38.0)
+
+  // Output calc chip appears
+  .to("#calcOut", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 39.0)
+
+// =====================================================
+// SUB 12 (43.2-45.5s): "It multiplies, sums, applies sigmoid."
+// Sigmoid badge
+// =====================================================
+  .to("#sigmoidBadge", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 43.3)
+  // Pulse output node
+  .to("#outBg", {
+    attr: { "stroke-width": 4 }, duration: 0.3, ease: "power2.out"
+  }, 43.5)
+  .to("#outBg", {
+    attr: { "stroke-width": 2.5 }, duration: 0.5
+  }, 44.0)
+
+// =====================================================
+// SUB 13 (45.5-48.3s): "Final answer: zero point nine two."
+// Output value appears
+// =====================================================
+  .to("#outVal", { opacity: 1, duration: 0.5, ease: "power2.out" }, 45.6)
+  .to("#outBg", {
+    attr: { stroke: "#10b981" }, duration: 0.3
+  }, 45.6)
+  // Fade calc chips
+  .to("#calcOut", { opacity: 0, duration: 0.5 }, 46.5)
+  .to("#sigmoidBadge", { opacity: 0, duration: 0.5 }, 46.5)
+
+// =====================================================
+// SUB 14 (48.3-50.6s): "Ninety-two percent chance of passing."
+// Result badge drops in
+// =====================================================
+  .to("#resultBadge", { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.5)" }, 48.4)
+
+// =====================================================
+// SUB 15 (50.6-52.4s): "Data in, answer out."
+// Forward arrow highlights
+// =====================================================
+  .to("#forwardArrow", { opacity: 1, duration: 0.01 }, 50.6)
+  .to("#forwardArrow line", {
+    attr: { stroke: "#f97316" }, opacity: 0.6, duration: 0.4
+  }, 50.7)
+  .to("#forwardArrow polygon", {
+    attr: { fill: "#f97316" }, opacity: 0.6, duration: 0.4
+  }, 50.7)
+  .to("#forwardArrow text", {
+    fill: "#f97316", opacity: 1, duration: 0.4
+  }, 50.7)
+
+// =====================================================
+// SUB 16 (52.4-54.3s): "That's a forward pass."
+// Everything settles, slight camera drift out
+// =====================================================
+  .to("#mainSvg", {
+    scale: 1.012, svgOrigin: "960 440", duration: 2, ease: "sine.inOut"
+  }, 52.5);
+</script>
+<!-- SCENE-AUDIO-PREVIEW -->
+<audio id="sceneAudio" src="../audio/chunks/chunk_s04_g00_narrator.mp3" preload="auto"></audio>
+<div id="playOverlay" style="position:absolute;inset:0;z-index:9999;background:rgba(11,15,26,0.92);display:flex;justify-content:center;align-items:center;cursor:pointer;">
+  <div style="text-align:center;">
+    <div style="width:80px;height:80px;border-radius:50%;background:#f97316;display:flex;justify-content:center;align-items:center;margin:0 auto 16px;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19"/></svg>
+    </div>
+    <div style="font-family:'Outfit',sans-serif;font-size:20px;color:#e8ecf4;">Click to Play</div>
+  </div>
+</div>
+<script>
+(function() {
+  var overlay = document.getElementById('playOverlay');
+  var audio = document.getElementById('sceneAudio');
+  overlay.addEventListener('click', function() {
+    if (typeof T0 !== 'undefined') window.T0_override = performance.now();
+    audio.play().catch(function(){});
+    overlay.style.display = 'none';
+    if (typeof tl !== 'undefined' && tl.restart) tl.restart();
+  });
+})();
+</script>
+<!-- /SCENE-AUDIO-PREVIEW -->
+</body>
+</html>

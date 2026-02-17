@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene 04 - Organizing into Layers</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/MotionPathPlugin.min.js"></script>
+<style>
+:root {
+  --bg: #0b0f1a; --surface: #151d30; --text: #e8ecf4;
+  --muted: #8892a8; --dim: #4a5568; --accent: #f97316;
+  --blue: #3b82f6; --purple: #8b5cf6; --red: #ef4444;
+  --green: #10b981; --cyan: #06b6d4;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif;
+  width: 1920px; height: 1080px; overflow: hidden; position: relative;
+}
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000;
+}
+.narration-sub{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);text-align:center;padding:10px 32px;max-width:1600px;font-size:18px;color:#8892a8;opacity:0;z-index:100;transition:opacity 0.3s;text-shadow:0 0 6px rgba(0,0,0,0.9),0 0 16px rgba(0,0,0,0.6);}
+</style>
+</head>
+<body>
+
+<svg id="mainSvg" width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;top:0;left:0;">
+  <defs>
+    <filter id="glowBlue" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowAccent" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <!-- OBS background rect -->
+  <rect width="1920" height="1080" fill="#0b0f1a"/>
+
+  <!-- Scene title -->
+  <text id="sceneTitle" x="960" y="68" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="32" fill="#8892a8">Layers</text>
+
+  <!-- ============================================================ -->
+  <!-- INPUT LAYER (left side)                                       -->
+  <!-- ============================================================ -->
+  <g id="inputLayerGroup">
+    <!-- "INPUT LAYER" label -->
+    <text id="inputLayerLabel" x="340" y="170" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="22" fill="#3b82f6" letter-spacing="3">INPUT LAYER</text>
+
+    <!-- Node 1: Hours Studied -->
+    <g id="inputNode1">
+      <circle id="inputCircle1" cx="340" cy="340" r="62" fill="#151d30" stroke="#3b82f6" stroke-width="3"/>
+      <circle cx="340" cy="340" r="48" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0.3"/>
+      <text x="340" y="332" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#3b82f6">x&#x2081;</text>
+      <text x="340" y="360" text-anchor="middle" font-family="Outfit" font-weight="300" font-size="20" fill="#8892a8">6</text>
+    </g>
+    <text id="inputLabel1" x="340" y="430" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="20" fill="#8892a8">Hours Studied</text>
+
+    <!-- Node 2: Hours Slept -->
+    <g id="inputNode2">
+      <circle id="inputCircle2" cx="340" cy="570" r="62" fill="#151d30" stroke="#8b5cf6" stroke-width="3"/>
+      <circle cx="340" cy="570" r="48" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.3"/>
+      <text x="340" y="562" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#8b5cf6">x&#x2082;</text>
+      <text x="340" y="590" text-anchor="middle" font-family="Outfit" font-weight="300" font-size="20" fill="#8892a8">7</text>
+    </g>
+    <text id="inputLabel2" x="340" y="660" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="20" fill="#8892a8">Hours Slept</text>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- QUESTION MARK placeholder (middle)                            -->
+  <!-- ============================================================ -->
+  <g id="questionGroup">
+    <circle id="questionCircle" cx="960" cy="455" r="72" fill="#151d30" stroke="#4a5568" stroke-width="2.5" stroke-dasharray="8 6"/>
+    <text id="questionMark" x="960" y="478" text-anchor="middle" font-family="Instrument Serif" font-size="64" fill="#4a5568">?</text>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- OUTPUT LAYER (right side)                                     -->
+  <!-- ============================================================ -->
+  <g id="outputLayerGroup">
+    <!-- "OUTPUT LAYER" label -->
+    <text id="outputLayerLabel" x="1580" y="170" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="22" fill="#10b981" letter-spacing="3">OUTPUT LAYER</text>
+
+    <!-- Output node with sigma -->
+    <g id="outputNode">
+      <circle id="outputCircle" cx="1580" cy="455" r="68" fill="#151d30" stroke="#10b981" stroke-width="3"/>
+      <circle cx="1580" cy="455" r="54" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.3"/>
+      <text x="1580" y="448" text-anchor="middle" font-family="Instrument Serif" font-size="52" fill="#10b981">&#x3c3;</text>
+      <text x="1580" y="485" text-anchor="middle" font-family="IBM Plex Mono" font-weight="400" font-size="20" fill="#8892a8">0-1</text>
+    </g>
+    <text id="outputLabel" x="1580" y="552" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="20" fill="#8892a8">Pass / Fail</text>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- HIDDEN LAYER 1 (3 neurons, appears in Phase 2)                -->
+  <!-- ============================================================ -->
+  <g id="hiddenLayer1Group">
+    <!-- "HIDDEN LAYER" label -->
+    <text id="hiddenLayerLabel" x="840" y="170" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="22" fill="#f97316" letter-spacing="3">HIDDEN LAYER</text>
+
+    <!-- Hidden neuron 1 -->
+    <g id="hiddenNode1">
+      <circle id="hiddenCircle1" cx="840" cy="280" r="52" fill="#151d30" stroke="#f97316" stroke-width="2.5"/>
+      <circle cx="840" cy="280" r="40" fill="none" stroke="#f97316" stroke-width="1.5" opacity="0.25"/>
+      <text x="840" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#f97316">h&#x2081;</text>
+    </g>
+
+    <!-- Hidden neuron 2 -->
+    <g id="hiddenNode2">
+      <circle id="hiddenCircle2" cx="840" cy="455" r="52" fill="#151d30" stroke="#f97316" stroke-width="2.5"/>
+      <circle cx="840" cy="455" r="40" fill="none" stroke="#f97316" stroke-width="1.5" opacity="0.25"/>
+      <text x="840" y="463" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#f97316">h&#x2082;</text>
+    </g>
+
+    <!-- Hidden neuron 3 -->
+    <g id="hiddenNode3">
+      <circle id="hiddenCircle3" cx="840" cy="630" r="52" fill="#151d30" stroke="#f97316" stroke-width="2.5"/>
+      <circle cx="840" cy="630" r="40" fill="none" stroke="#f97316" stroke-width="1.5" opacity="0.25"/>
+      <text x="840" y="638" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#f97316">h&#x2083;</text>
+    </g>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- CONNECTIONS: Input -> Hidden Layer 1                          -->
+  <!-- ============================================================ -->
+  <g id="connInputHidden">
+    <!-- Input 1 to Hidden 1,2,3 -->
+    <line id="cIH_1_1" x1="402" y1="340" x2="788" y2="280" stroke="#3b82f6" stroke-width="2.5" opacity="0.5"/>
+    <line id="cIH_1_2" x1="402" y1="340" x2="788" y2="455" stroke="#3b82f6" stroke-width="2.5" opacity="0.5"/>
+    <line id="cIH_1_3" x1="402" y1="340" x2="788" y2="630" stroke="#3b82f6" stroke-width="2.5" opacity="0.5"/>
+    <!-- Input 2 to Hidden 1,2,3 -->
+    <line id="cIH_2_1" x1="402" y1="570" x2="788" y2="280" stroke="#8b5cf6" stroke-width="2.5" opacity="0.5"/>
+    <line id="cIH_2_2" x1="402" y1="570" x2="788" y2="455" stroke="#8b5cf6" stroke-width="2.5" opacity="0.5"/>
+    <line id="cIH_2_3" x1="402" y1="570" x2="788" y2="630" stroke="#8b5cf6" stroke-width="2.5" opacity="0.5"/>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- CONNECTIONS: Hidden Layer 1 -> Output                         -->
+  <!-- ============================================================ -->
+  <g id="connHiddenOutput">
+    <line id="cHO_1" x1="892" y1="280" x2="1512" y2="455" stroke="#f97316" stroke-width="2.5" opacity="0.4"/>
+    <line id="cHO_2" x1="892" y1="455" x2="1512" y2="455" stroke="#f97316" stroke-width="2.5" opacity="0.4"/>
+    <line id="cHO_3" x1="892" y1="630" x2="1512" y2="455" stroke="#f97316" stroke-width="2.5" opacity="0.4"/>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- HIDDEN LAYER 2 (3 neurons, appears later to show depth)       -->
+  <!-- ============================================================ -->
+  <g id="hiddenLayer2Group">
+    <!-- "HIDDEN LAYER 2" label -->
+    <text id="hiddenLayer2Label" x="1180" y="170" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="22" fill="#8b5cf6" letter-spacing="3">HIDDEN LAYER 2</text>
+
+    <!-- Hidden2 neuron 1 -->
+    <g id="hidden2Node1">
+      <circle id="hidden2Circle1" cx="1180" cy="280" r="52" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+      <circle cx="1180" cy="280" r="40" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.25"/>
+      <text x="1180" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#8b5cf6">h&#x2084;</text>
+    </g>
+
+    <!-- Hidden2 neuron 2 -->
+    <g id="hidden2Node2">
+      <circle id="hidden2Circle2" cx="1180" cy="455" r="52" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+      <circle cx="1180" cy="455" r="40" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.25"/>
+      <text x="1180" y="463" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#8b5cf6">h&#x2085;</text>
+    </g>
+
+    <!-- Hidden2 neuron 3 -->
+    <g id="hidden2Node3">
+      <circle id="hidden2Circle3" cx="1180" cy="630" r="52" fill="#151d30" stroke="#8b5cf6" stroke-width="2.5"/>
+      <circle cx="1180" cy="630" r="40" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0.25"/>
+      <text x="1180" y="638" text-anchor="middle" font-family="IBM Plex Mono" font-weight="500" font-size="22" fill="#8b5cf6">h&#x2086;</text>
+    </g>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- CONNECTIONS: Hidden Layer 1 -> Hidden Layer 2                 -->
+  <!-- ============================================================ -->
+  <g id="connH1H2">
+    <line id="cH1H2_1_1" x1="892" y1="280" x2="1128" y2="280" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_1_2" x1="892" y1="280" x2="1128" y2="455" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_1_3" x1="892" y1="280" x2="1128" y2="630" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_2_1" x1="892" y1="455" x2="1128" y2="280" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_2_2" x1="892" y1="455" x2="1128" y2="455" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_2_3" x1="892" y1="455" x2="1128" y2="630" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_3_1" x1="892" y1="630" x2="1128" y2="280" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_3_2" x1="892" y1="630" x2="1128" y2="455" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+    <line id="cH1H2_3_3" x1="892" y1="630" x2="1128" y2="630" stroke="#f97316" stroke-width="2" opacity="0.35"/>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- CONNECTIONS: Hidden Layer 2 -> Output                         -->
+  <!-- ============================================================ -->
+  <g id="connH2Output">
+    <line id="cH2O_1" x1="1232" y1="280" x2="1512" y2="455" stroke="#8b5cf6" stroke-width="2.5" opacity="0.4"/>
+    <line id="cH2O_2" x1="1232" y1="455" x2="1512" y2="455" stroke="#8b5cf6" stroke-width="2.5" opacity="0.4"/>
+    <line id="cH2O_3" x1="1232" y1="630" x2="1512" y2="455" stroke="#8b5cf6" stroke-width="2.5" opacity="0.4"/>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- DEEP LEARNING BADGE (bottom)                                  -->
+  <!-- ============================================================ -->
+  <g id="deepBadge">
+    <rect x="660" y="770" width="600" height="60" rx="14" fill="#f97316" fill-opacity="0.12" stroke="#f97316" stroke-width="2.5"/>
+    <text x="960" y="808" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="24" fill="#f97316">Deep = many layers &#x2192; Deep Learning</text>
+  </g>
+
+</svg>
+
+<!-- Subtitles -->
+<div class="narration-sub" id="sub"></div>
+
+<script>
+gsap.registerPlugin(MotionPathPlugin);
+
+// ── Subtitle engine ──
+var T0 = performance.now();
+var subs = [
+  {"start": 0,     "end": 3420,  "text": "We don\u2019t just toss neurons into a pile."},
+  {"start": 3420,  "end": 5130,  "text": "They\u2019re organized into layers."},
+  {"start": 5130,  "end": 8550,  "text": "A neural network has at minimum three kinds."},
+  {"start": 8550,  "end": 12398, "text": "The input layer \u2014 that\u2019s just your raw data."},
+  {"start": 12398, "end": 16246, "text": "For our student example, hours studied and hours slept."},
+  {"start": 16246, "end": 17528, "text": "Two values in."},
+  {"start": 17528, "end": 20521, "text": "The output layer produces the final answer."},
+  {"start": 20521, "end": 21803, "text": "Pass or fail."},
+  {"start": 21803, "end": 25229, "text": "One neuron with a sigmoid, outputting a probability."},
+  {"start": 25716, "end": 27668, "text": "And in between: hidden layers."},
+  {"start": 27668, "end": 30400, "text": "This is where the real work happens."},
+  {"start": 30400, "end": 33523, "text": "Each hidden layer is a row of neurons."},
+  {"start": 33523, "end": 38598, "text": "Every neuron in one layer connects to every neuron in the next layer."},
+  {"start": 38598, "end": 41330, "text": "The inputs feed into the hidden layer."},
+  {"start": 41330, "end": 44062, "text": "The hidden layer feeds into the output."},
+  {"start": 44062, "end": 47966, "text": "You can have one hidden layer, two, ten, a hundred."},
+  {"start": 47966, "end": 50698, "text": "The more layers, the deeper the network."},
+  {"start": 50698, "end": 53825, "text": "That\u2019s where the term deep learning comes from."}
+];
+(function tick() {
+  var t = performance.now() - (window.T0_override || T0);
+  var el = document.getElementById("sub");
+  var active = null;
+  for (var i = 0; i < subs.length; i++) { if (t >= subs[i].start && t < subs[i].end) { active = subs[i].text; break; } }
+  el.textContent = active || '';
+  el.style.opacity = active ? '1' : '0';
+  requestAnimationFrame(tick);
+})();
+
+// ── Initial states ──────────────────────────────────────────
+gsap.set("#sceneTitle", { opacity: 0, y: 14 });
+
+// Input layer
+gsap.set("#inputLayerGroup", { opacity: 1 });
+gsap.set("#inputNode1", { opacity: 0, scale: 0.88, svgOrigin: "340 340" });
+gsap.set("#inputNode2", { opacity: 0, scale: 0.88, svgOrigin: "340 570" });
+gsap.set("#inputLabel1", { opacity: 0 });
+gsap.set("#inputLabel2", { opacity: 0 });
+gsap.set("#inputLayerLabel", { opacity: 0, y: 10 });
+
+// Question mark
+gsap.set("#questionGroup", { opacity: 0, scale: 0.88, svgOrigin: "960 455" });
+
+// Output layer
+gsap.set("#outputLayerGroup", { opacity: 1 });
+gsap.set("#outputNode", { opacity: 0, scale: 0.88, svgOrigin: "1580 455" });
+gsap.set("#outputLabel", { opacity: 0 });
+gsap.set("#outputLayerLabel", { opacity: 0, y: 10 });
+
+// Hidden layer 1
+gsap.set("#hiddenLayer1Group", { opacity: 0 });
+gsap.set("#hiddenLayerLabel", { opacity: 0, y: 10 });
+gsap.set("#hiddenNode1", { opacity: 0, scale: 0.88, svgOrigin: "840 280" });
+gsap.set("#hiddenNode2", { opacity: 0, scale: 0.88, svgOrigin: "840 455" });
+gsap.set("#hiddenNode3", { opacity: 0, scale: 0.88, svgOrigin: "840 630" });
+
+// Connections input->hidden
+gsap.set("#connInputHidden", { opacity: 0 });
+gsap.set("#cIH_1_1, #cIH_1_2, #cIH_1_3, #cIH_2_1, #cIH_2_2, #cIH_2_3", { opacity: 0 });
+
+// Connections hidden->output
+gsap.set("#connHiddenOutput", { opacity: 0 });
+gsap.set("#cHO_1, #cHO_2, #cHO_3", { opacity: 0 });
+
+// Hidden layer 2
+gsap.set("#hiddenLayer2Group", { opacity: 0 });
+gsap.set("#hiddenLayer2Label", { opacity: 0, y: 10 });
+gsap.set("#hidden2Node1", { opacity: 0, scale: 0.88, svgOrigin: "1180 280" });
+gsap.set("#hidden2Node2", { opacity: 0, scale: 0.88, svgOrigin: "1180 455" });
+gsap.set("#hidden2Node3", { opacity: 0, scale: 0.88, svgOrigin: "1180 630" });
+
+// Connections H1->H2 and H2->Output
+gsap.set("#connH1H2", { opacity: 0 });
+gsap.set("#cH1H2_1_1, #cH1H2_1_2, #cH1H2_1_3, #cH1H2_2_1, #cH1H2_2_2, #cH1H2_2_3, #cH1H2_3_1, #cH1H2_3_2, #cH1H2_3_3", { opacity: 0 });
+gsap.set("#connH2Output", { opacity: 0 });
+gsap.set("#cH2O_1, #cH2O_2, #cH2O_3", { opacity: 0 });
+
+// Deep learning badge
+gsap.set("#deepBadge", { opacity: 0, y: 14 });
+
+// ── Ambient breathing ───────────────────────────────────────
+gsap.to("#inputCircle1", {
+  scale: 1.04, svgOrigin: "340 340",
+  duration: 2.8, ease: "sine.inOut", yoyo: true, repeat: -1
+});
+gsap.to("#inputCircle2", {
+  scale: 1.04, svgOrigin: "340 570",
+  duration: 3.0, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.5
+});
+gsap.to("#outputCircle", {
+  scale: 1.03, svgOrigin: "1580 455",
+  duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 1.0
+});
+gsap.to("#hiddenCircle1", {
+  scale: 1.04, svgOrigin: "840 280",
+  duration: 2.4, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.3
+});
+gsap.to("#hiddenCircle2", {
+  scale: 1.04, svgOrigin: "840 455",
+  duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.7
+});
+gsap.to("#hiddenCircle3", {
+  scale: 1.04, svgOrigin: "840 630",
+  duration: 2.8, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 1.1
+});
+gsap.to("#hidden2Circle1", {
+  scale: 1.04, svgOrigin: "1180 280",
+  duration: 2.5, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.4
+});
+gsap.to("#hidden2Circle2", {
+  scale: 1.04, svgOrigin: "1180 455",
+  duration: 2.7, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.9
+});
+gsap.to("#hidden2Circle3", {
+  scale: 1.04, svgOrigin: "1180 630",
+  duration: 2.9, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 1.3
+});
+// Question mark floating
+gsap.to("#questionMark", {
+  y: -6, duration: 2.0, ease: "sine.inOut", yoyo: true, repeat: -1
+});
+
+// ── Master timeline ─────────────────────────────────────────
+var tl = gsap.timeline();
+
+// ================================================================
+// PHASE 1: Input and Output Layers (0s - 25s)
+// ================================================================
+
+// Sub 1 (0-3.42s): "We don't just toss neurons into a pile."
+tl.to("#sceneTitle", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.2)
+
+// Sub 2 (3.42-5.13s): "They're organized into layers."
+// (title already visible, let it settle)
+
+// Sub 3 (5.13-8.55s): "A neural network has at minimum three kinds."
+// Show the question placeholder in the middle to hint at structure
+  .to("#questionGroup", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.3)", svgOrigin: "960 455" }, 5.3)
+
+// Sub 4 (8.55-12.4s): "The input layer -- that's just your raw data."
+  .to("#inputNode1", { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)", svgOrigin: "340 340" }, 8.7)
+  .to("#inputNode2", { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)", svgOrigin: "340 570" }, 9.0)
+  .to("#inputLayerLabel", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 9.5)
+
+// Sub 5 (12.4-16.25s): "For our student example, hours studied and hours slept."
+  .to("#inputLabel1", { opacity: 1, duration: 0.5, ease: "power2.out" }, 12.6)
+  .to("#inputLabel2", { opacity: 1, duration: 0.5, ease: "power2.out" }, 13.4)
+
+// Sub 6 (16.25-17.53s): "Two values in."
+// Pulse the input nodes
+  .to("#inputCircle1", { stroke: "#60a5fa", duration: 0.3, ease: "power2.out" }, 16.3)
+  .to("#inputCircle1", { stroke: "#3b82f6", duration: 0.5 }, 16.8)
+  .to("#inputCircle2", { stroke: "#a78bfa", duration: 0.3, ease: "power2.out" }, 16.5)
+  .to("#inputCircle2", { stroke: "#8b5cf6", duration: 0.5 }, 17.0)
+
+// Sub 7 (17.53-20.52s): "The output layer produces the final answer."
+  .to("#outputNode", { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)", svgOrigin: "1580 455" }, 17.7)
+  .to("#outputLayerLabel", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 18.2)
+
+// Sub 8 (20.52-21.80s): "Pass or fail."
+  .to("#outputLabel", { opacity: 1, duration: 0.4, ease: "power2.out" }, 20.6)
+
+// Sub 9 (21.80-25.23s): "One neuron with a sigmoid, outputting a probability."
+// Pulse the sigma in the output node
+  .to("#outputCircle", { stroke: "#34d399", duration: 0.3, ease: "power2.out" }, 22.0)
+  .to("#outputCircle", { stroke: "#10b981", duration: 0.6 }, 22.5)
+
+// ================================================================
+// PHASE 2: Hidden Layers Revealed (25.7s - 55s)
+// ================================================================
+
+// Sub 10 (25.72-27.67s): "And in between: hidden layers."
+// Question mark dissolves, hidden layer 1 appears
+  .to("#questionGroup", { opacity: 0, scale: 0.8, duration: 0.5, ease: "power2.in", svgOrigin: "960 455" }, 25.8)
+  .to("#hiddenLayer1Group", { opacity: 1, duration: 0.01 }, 26.2)
+  .to("#hiddenNode1", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.5)", svgOrigin: "840 280" }, 26.3)
+  .to("#hiddenNode2", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.5)", svgOrigin: "840 455" }, 26.5)
+  .to("#hiddenNode3", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.5)", svgOrigin: "840 630" }, 26.7)
+
+// Sub 11 (27.67-30.40s): "This is where the real work happens."
+  .to("#hiddenLayerLabel", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 27.8)
+
+// Sub 12 (30.40-33.52s): "Each hidden layer is a row of neurons."
+// Briefly highlight the column of hidden neurons
+  .to("#hiddenCircle1", { stroke: "#fb923c", duration: 0.3, ease: "power2.out" }, 30.5)
+  .to("#hiddenCircle2", { stroke: "#fb923c", duration: 0.3, ease: "power2.out" }, 30.7)
+  .to("#hiddenCircle3", { stroke: "#fb923c", duration: 0.3, ease: "power2.out" }, 30.9)
+  .to("#hiddenCircle1", { stroke: "#f97316", duration: 0.6 }, 31.2)
+  .to("#hiddenCircle2", { stroke: "#f97316", duration: 0.6 }, 31.3)
+  .to("#hiddenCircle3", { stroke: "#f97316", duration: 0.6 }, 31.4)
+
+// Sub 13 (33.52-38.60s): "Every neuron in one layer connects to every neuron in the next layer."
+// Draw connections: input -> hidden (6 lines staggered)
+  .to("#connInputHidden", { opacity: 1, duration: 0.01 }, 33.6)
+  .to("#cIH_1_1", { opacity: 0.5, duration: 0.4, ease: "power2.out" }, 33.7)
+  .to("#cIH_1_2", { opacity: 0.5, duration: 0.4, ease: "power2.out" }, 33.9)
+  .to("#cIH_1_3", { opacity: 0.5, duration: 0.4, ease: "power2.out" }, 34.1)
+  .to("#cIH_2_1", { opacity: 0.5, duration: 0.4, ease: "power2.out" }, 34.3)
+  .to("#cIH_2_2", { opacity: 0.5, duration: 0.4, ease: "power2.out" }, 34.5)
+  .to("#cIH_2_3", { opacity: 0.5, duration: 0.4, ease: "power2.out" }, 34.7)
+// Draw connections: hidden -> output (3 lines staggered)
+  .to("#connHiddenOutput", { opacity: 1, duration: 0.01 }, 35.2)
+  .to("#cHO_1", { opacity: 0.4, duration: 0.4, ease: "power2.out" }, 35.3)
+  .to("#cHO_2", { opacity: 0.4, duration: 0.4, ease: "power2.out" }, 35.6)
+  .to("#cHO_3", { opacity: 0.4, duration: 0.4, ease: "power2.out" }, 35.9)
+
+// Sub 14 (38.60-41.33s): "The inputs feed into the hidden layer."
+// Pulse along input->hidden connections
+  .to("#cIH_1_1, #cIH_1_2, #cIH_1_3", { opacity: 0.8, duration: 0.3, ease: "power2.out" }, 38.7)
+  .to("#cIH_2_1, #cIH_2_2, #cIH_2_3", { opacity: 0.8, duration: 0.3, ease: "power2.out" }, 39.0)
+  .to("#cIH_1_1, #cIH_1_2, #cIH_1_3, #cIH_2_1, #cIH_2_2, #cIH_2_3", { opacity: 0.5, duration: 0.6 }, 39.5)
+
+// Sub 15 (41.33-44.06s): "The hidden layer feeds into the output."
+// Pulse along hidden->output connections
+  .to("#cHO_1, #cHO_2, #cHO_3", { opacity: 0.8, duration: 0.3, ease: "power2.out" }, 41.5)
+  .to("#cHO_1, #cHO_2, #cHO_3", { opacity: 0.4, duration: 0.6 }, 42.0)
+
+// Sub 16 (44.06-47.97s): "You can have one hidden layer, two, ten, a hundred."
+// Slide existing hidden->output connections out, make room for layer 2
+// Fade out old H->O connections
+  .to("#cHO_1, #cHO_2, #cHO_3", { opacity: 0, duration: 0.3 }, 44.2)
+// Show hidden layer 2 group
+  .to("#hiddenLayer2Group", { opacity: 1, duration: 0.01 }, 44.6)
+  .to("#hidden2Node1", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)", svgOrigin: "1180 280" }, 44.7)
+  .to("#hidden2Node2", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)", svgOrigin: "1180 455" }, 44.9)
+  .to("#hidden2Node3", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)", svgOrigin: "1180 630" }, 45.1)
+  .to("#hiddenLayer2Label", { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 45.3)
+// Draw H1->H2 connections
+  .to("#connH1H2", { opacity: 1, duration: 0.01 }, 45.5)
+  .to("#cH1H2_1_1, #cH1H2_1_2, #cH1H2_1_3", { opacity: 0.35, duration: 0.3, ease: "power2.out" }, 45.6)
+  .to("#cH1H2_2_1, #cH1H2_2_2, #cH1H2_2_3", { opacity: 0.35, duration: 0.3, ease: "power2.out" }, 45.8)
+  .to("#cH1H2_3_1, #cH1H2_3_2, #cH1H2_3_3", { opacity: 0.35, duration: 0.3, ease: "power2.out" }, 46.0)
+// Draw H2->Output connections
+  .to("#connH2Output", { opacity: 1, duration: 0.01 }, 46.2)
+  .to("#cH2O_1", { opacity: 0.4, duration: 0.3, ease: "power2.out" }, 46.3)
+  .to("#cH2O_2", { opacity: 0.4, duration: 0.3, ease: "power2.out" }, 46.5)
+  .to("#cH2O_3", { opacity: 0.4, duration: 0.3, ease: "power2.out" }, 46.7)
+
+// Sub 17 (47.97-50.70s): "The more layers, the deeper the network."
+// Brief network-wide pulse to emphasize depth
+  .to("#hiddenCircle1, #hiddenCircle2, #hiddenCircle3", { stroke: "#fb923c", duration: 0.3 }, 48.2)
+  .to("#hidden2Circle1, #hidden2Circle2, #hidden2Circle3", { stroke: "#a78bfa", duration: 0.3 }, 48.5)
+  .to("#hiddenCircle1, #hiddenCircle2, #hiddenCircle3", { stroke: "#f97316", duration: 0.5 }, 48.8)
+  .to("#hidden2Circle1, #hidden2Circle2, #hidden2Circle3", { stroke: "#8b5cf6", duration: 0.5 }, 49.1)
+
+// Sub 18 (50.70-53.83s): "That's where the term deep learning comes from."
+// Deep learning badge appears
+  .to("#deepBadge", { opacity: 1, y: 0, duration: 0.7, ease: "back.out(1.3)" }, 50.9);
+
+// ── Slow camera drift (subtle zoom out over full scene) ─────
+gsap.from("#mainSvg", {
+  scale: 1.03, svgOrigin: "960 440",
+  duration: 55, ease: "power1.out"
+});
+</script>
+
+<!-- SCENE-AUDIO-PREVIEW -->
+<audio id="sceneAudio" src="../audio/chunks/chunk_s03_g00_narrator.mp3" preload="auto"></audio>
+<div id="playOverlay" style="position:absolute;inset:0;z-index:9999;background:rgba(11,15,26,0.92);display:flex;justify-content:center;align-items:center;cursor:pointer;">
+  <div style="text-align:center;">
+    <div style="width:80px;height:80px;border-radius:50%;background:#f97316;display:flex;justify-content:center;align-items:center;margin:0 auto 16px;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19"/></svg>
+    </div>
+    <div style="font-family:'Outfit',sans-serif;font-size:20px;color:#e8ecf4;">Click to Play</div>
+  </div>
+</div>
+<script>
+(function() {
+  var overlay = document.getElementById('playOverlay');
+  var audio = document.getElementById('sceneAudio');
+  overlay.addEventListener('click', function() {
+    if (typeof T0 !== 'undefined') window.T0_override = performance.now();
+    audio.play().catch(function() {});
+    overlay.style.display = 'none';
+    if (typeof tl !== 'undefined' && tl.restart) tl.restart();
+  });
+})();
+</script>
+<!-- /SCENE-AUDIO-PREVIEW -->
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene 09 - Depth in Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/MotionPathPlugin.min.js"></script>
+<style>
+:root {
+  --bg: #0b0f1a; --surface: #151d30; --text: #e8ecf4;
+  --muted: #8892a8; --dim: #4a5568; --accent: #f97316;
+  --blue: #3b82f6; --purple: #8b5cf6; --red: #ef4444;
+  --green: #10b981; --cyan: #06b6d4;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif;
+  width: 1920px; height: 1080px; overflow: hidden; position: relative;
+}
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000;
+}
+.narration-sub{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);text-align:center;padding:10px 32px;max-width:1600px;font-size:18px;color:#8892a8;opacity:0;z-index:100;transition:opacity 0.3s;text-shadow:0 0 6px rgba(0,0,0,0.9),0 0 16px rgba(0,0,0,0.6);}
+</style>
+</head>
+<body>
+
+<svg id="mainSvg" width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;top:0;left:0;">
+  <defs>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <filter id="barGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <linearGradient id="blueGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="abstractGrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#151d30" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#151d30" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- OBS background rect -->
+  <rect width="1920" height="1080" fill="#0b0f1a"/>
+
+  <!-- ============================================================ -->
+  <!-- PHASE 1: Depth Timeline (0 - 18.9s)                         -->
+  <!-- Landmark networks and their depth                            -->
+  <!-- ============================================================ -->
+  <g id="phase1">
+
+    <!-- Scene title -->
+    <text id="p1Title" x="960" y="58" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="32" fill="#8892a8">Depth in Practice</text>
+
+    <!-- Subtitle badge -->
+    <g id="p1Badge">
+      <rect x="805" y="70" width="310" height="34" rx="8" fill="#151d30" stroke="#4a5568" stroke-width="1.5"/>
+      <text x="960" y="94" text-anchor="middle" font-family="IBM Plex Mono" font-weight="400" font-size="20" fill="#4a5568">LANDMARK NETWORK DEPTH</text>
+    </g>
+
+    <!-- Timeline axis -->
+    <line id="timeAxis" x1="180" y1="760" x2="1740" y2="760" stroke="#4a5568" stroke-width="2.5"/>
+
+    <!-- Year markers -->
+    <g id="yearMarkers" font-family="IBM Plex Mono" font-weight="400" font-size="22" fill="#8892a8" text-anchor="middle">
+      <line x1="340" y1="755" x2="340" y2="770" stroke="#4a5568" stroke-width="2"/>
+      <text x="340" y="800">2012</text>
+      <line x1="740" y1="755" x2="740" y2="770" stroke="#4a5568" stroke-width="2"/>
+      <text x="740" y="800">2014</text>
+      <line x1="1140" y1="755" x2="1140" y2="770" stroke="#4a5568" stroke-width="2"/>
+      <text x="1140" y="800">2015</text>
+      <line x1="1540" y1="755" x2="1540" y2="770" stroke="#4a5568" stroke-width="2"/>
+      <text x="1540" y="800">2020</text>
+    </g>
+
+    <!-- ====== AlexNet (2012): 8 layers ====== -->
+    <g id="alexnet">
+      <!-- Backdrop panel -->
+      <rect x="250" y="600" width="180" height="160" rx="10" fill="#151d30" opacity="0.6"/>
+      <!-- Layer bars (8 bars, each 14px tall, 2px gap) -->
+      <rect class="alexBar" x="290" y="728" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <rect class="alexBar" x="290" y="712" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <rect class="alexBar" x="290" y="696" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <rect class="alexBar" x="290" y="680" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <rect class="alexBar" x="290" y="664" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <rect class="alexBar" x="290" y="648" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <rect class="alexBar" x="290" y="632" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <rect class="alexBar" x="290" y="616" width="100" height="14" rx="3" fill="url(#blueGrad)"/>
+      <!-- Name label -->
+      <text x="340" y="585" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="26" fill="#3b82f6">AlexNet</text>
+      <!-- Layer count -->
+      <text id="alexCount" x="340" y="560" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="28" fill="#e8ecf4">8 layers</text>
+    </g>
+
+    <!-- ====== VGGNet (2014): 19 layers ====== -->
+    <g id="vggnet">
+      <rect x="650" y="396" width="180" height="364" rx="10" fill="#151d30" opacity="0.6"/>
+      <!-- 19 bars stacked (each 14px tall, 2px gap, from y=742 going up) -->
+      <rect class="vggBar" x="690" y="728" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="712" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="696" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="680" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="664" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="648" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="632" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="616" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="600" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="584" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="568" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="552" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="536" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="520" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="504" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="488" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="472" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="456" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <rect class="vggBar" x="690" y="440" width="100" height="14" rx="3" fill="url(#purpleGrad)"/>
+      <!-- Name label -->
+      <text x="740" y="417" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="26" fill="#8b5cf6">VGGNet</text>
+      <!-- Layer count -->
+      <text id="vggCount" x="740" y="392" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="28" fill="#e8ecf4">19 layers</text>
+    </g>
+
+    <!-- ====== ResNet (2015): 152 layers ====== -->
+    <g id="resnet">
+      <!-- For 152 layers we show a dense compressed column -->
+      <rect x="1050" y="140" width="180" height="620" rx="10" fill="#151d30" opacity="0.6"/>
+      <!-- Dense block representing 152 layers (show as gradient-filled tall block) -->
+      <rect id="resnetBlock" x="1090" y="180" width="100" height="562" rx="4" fill="url(#greenGrad)" opacity="0.8"/>
+      <!-- Grid lines across the block to suggest many layers -->
+      <line x1="1090" y1="218" x2="1190" y2="218" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="256" x2="1190" y2="256" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="294" x2="1190" y2="294" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="332" x2="1190" y2="332" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="370" x2="1190" y2="370" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="408" x2="1190" y2="408" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="446" x2="1190" y2="446" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="484" x2="1190" y2="484" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="522" x2="1190" y2="522" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="560" x2="1190" y2="560" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="598" x2="1190" y2="598" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="636" x2="1190" y2="636" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="674" x2="1190" y2="674" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1090" y1="712" x2="1190" y2="712" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <!-- "..." dots to indicate many layers -->
+      <text x="1140" y="470" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="24" fill="#0b0f1a" opacity="0.5">...</text>
+      <!-- Name label -->
+      <text x="1140" y="160" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="26" fill="#10b981">ResNet</text>
+      <!-- Layer count -->
+      <text id="resCount" x="1140" y="135" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="28" fill="#e8ecf4">152 layers</text>
+    </g>
+
+    <!-- ====== GPT-3 (2020): 96 transformer layers ====== -->
+    <g id="gpt3">
+      <rect x="1450" y="280" width="180" height="480" rx="10" fill="#151d30" opacity="0.6"/>
+      <!-- Dense block representing 96 transformer layers -->
+      <rect id="gpt3Block" x="1490" y="320" width="100" height="422" rx="4" fill="url(#accentGrad)" opacity="0.8"/>
+      <!-- Grid lines -->
+      <line x1="1490" y1="358" x2="1590" y2="358" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="396" x2="1590" y2="396" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="434" x2="1590" y2="434" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="472" x2="1590" y2="472" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="510" x2="1590" y2="510" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="548" x2="1590" y2="548" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="586" x2="1590" y2="586" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="624" x2="1590" y2="624" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="662" x2="1590" y2="662" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <line x1="1490" y1="700" x2="1590" y2="700" stroke="#0b0f1a" stroke-width="1.5" opacity="0.3"/>
+      <text x="1540" y="490" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="24" fill="#0b0f1a" opacity="0.5">...</text>
+      <!-- Badge: transformer -->
+      <rect x="1465" y="830" width="150" height="30" rx="8" fill="#151d30" stroke="#f97316" stroke-width="1.5"/>
+      <text x="1540" y="851" text-anchor="middle" font-family="IBM Plex Mono" font-weight="400" font-size="16" fill="#f97316">transformer</text>
+      <!-- Name label -->
+      <text x="1540" y="300" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="26" fill="#f97316">GPT-3</text>
+      <!-- Layer count -->
+      <text id="gpt3Count" x="1540" y="275" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="28" fill="#e8ecf4">96 layers</text>
+    </g>
+
+    <!-- Trend arrow -->
+    <g id="trendArrow">
+      <path d="M380,570 C550,500 900,300 1500,240" fill="none" stroke="#f97316" stroke-width="2.5" stroke-dasharray="8,5" opacity="0.6"/>
+      <polygon points="1500,234 1518,240 1500,246" fill="#f97316" opacity="0.6"/>
+      <text x="960" y="340" text-anchor="middle" font-family="Outfit" font-weight="500" font-size="24" fill="#f97316" opacity="0.7">Going deeper</text>
+    </g>
+
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- Cover rect for phase transition                              -->
+  <!-- ============================================================ -->
+  <rect id="phaseCover" x="0" y="0" width="1920" height="1080" fill="#0b0f1a" opacity="0"/>
+
+  <!-- ============================================================ -->
+  <!-- PHASE 2: Feature Hierarchy (19.9 - 50.3s)                   -->
+  <!-- What each layer of an image network learns                   -->
+  <!-- ============================================================ -->
+  <g id="phase2">
+
+    <!-- Scene title -->
+    <text id="p2Title" x="960" y="58" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="32" fill="#8892a8">Why Depth Works</text>
+
+    <!-- Central vertical arrow backbone -->
+    <g id="backbone">
+      <line x1="960" y1="780" x2="960" y2="100" stroke="#4a5568" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <polygon points="954,105 960,85 966,105" fill="#4a5568"/>
+      <!-- Abstraction labels along the arrow -->
+      <text x="994" y="770" font-family="IBM Plex Mono" font-weight="400" font-size="20" fill="#4a5568">Concrete</text>
+      <text x="994" y="108" font-family="IBM Plex Mono" font-weight="400" font-size="20" fill="#4a5568">Abstract</text>
+    </g>
+
+    <!-- ====== Layer 1: Edge Detectors (bottom) ====== -->
+    <g id="layer1">
+      <rect x="120" y="660" width="720" height="140" rx="14" fill="#151d30" opacity="0.7"/>
+      <text x="150" y="698" font-family="Outfit" font-weight="600" font-size="24" fill="#3b82f6">Layer 1</text>
+      <text x="300" y="698" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Edge Detectors</text>
+
+      <!-- Edge detector visuals: oriented lines in small boxes -->
+      <g id="edgeIcons">
+        <!-- Box 1: horizontal edge -->
+        <rect x="160" y="714" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="172" y1="749" x2="218" y2="749" stroke="#3b82f6" stroke-width="3"/>
+
+        <!-- Box 2: vertical edge -->
+        <rect x="248" y="714" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="283" y1="726" x2="283" y2="772" stroke="#3b82f6" stroke-width="3"/>
+
+        <!-- Box 3: diagonal edge (/) -->
+        <rect x="336" y="714" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="350" y1="772" x2="394" y2="726" stroke="#3b82f6" stroke-width="3"/>
+
+        <!-- Box 4: diagonal edge (\) -->
+        <rect x="424" y="714" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2"/>
+        <line x1="436" y1="726" x2="482" y2="772" stroke="#3b82f6" stroke-width="3"/>
+
+        <!-- Box 5: curve fragment -->
+        <rect x="512" y="714" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2"/>
+        <path d="M524,760 Q547,720 570,760" fill="none" stroke="#3b82f6" stroke-width="3"/>
+      </g>
+    </g>
+
+    <!-- Connector arrow L1 to L2 -->
+    <g id="conn12">
+      <line x1="480" y1="660" x2="480" y2="540" stroke="#3b82f6" stroke-width="2" opacity="0.5"/>
+      <polygon points="474,545 480,530 486,545" fill="#3b82f6" opacity="0.5"/>
+    </g>
+
+    <!-- ====== Layer 2: Textures and Corners ====== -->
+    <g id="layer2">
+      <rect x="120" y="400" width="720" height="140" rx="14" fill="#151d30" opacity="0.7"/>
+      <text x="150" y="438" font-family="Outfit" font-weight="600" font-size="24" fill="#8b5cf6">Layer 2</text>
+      <text x="300" y="438" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Textures &amp; Corners</text>
+
+      <g id="textureIcons">
+        <!-- Box 1: grid/crosshatch pattern -->
+        <rect x="160" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="175" y1="469" x2="215" y2="469" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="175" y1="481" x2="215" y2="481" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="175" y1="493" x2="215" y2="493" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="175" y1="505" x2="215" y2="505" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="183" y1="462" x2="183" y2="512" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+        <line x1="195" y1="462" x2="195" y2="512" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+        <line x1="207" y1="462" x2="207" y2="512" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+
+        <!-- Box 2: corner (L shape) -->
+        <rect x="248" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#8b5cf6" stroke-width="2"/>
+        <path d="M264,470 L264,506 L302,506" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/>
+
+        <!-- Box 3: T-junction -->
+        <rect x="336" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="350" y1="489" x2="394" y2="489" stroke="#8b5cf6" stroke-width="3"/>
+        <line x1="371" y1="468" x2="371" y2="510" stroke="#8b5cf6" stroke-width="3"/>
+
+        <!-- Box 4: curve/arc -->
+        <rect x="424" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#8b5cf6" stroke-width="2"/>
+        <path d="M438,505 Q459,460 480,505" fill="none" stroke="#8b5cf6" stroke-width="3"/>
+
+        <!-- Box 5: parallel stripes (texture) -->
+        <rect x="512" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#8b5cf6" stroke-width="2"/>
+        <line x1="530" y1="466" x2="546" y2="510" stroke="#8b5cf6" stroke-width="2.5"/>
+        <line x1="540" y1="466" x2="556" y2="510" stroke="#8b5cf6" stroke-width="2.5"/>
+        <line x1="550" y1="466" x2="566" y2="510" stroke="#8b5cf6" stroke-width="2.5"/>
+      </g>
+    </g>
+
+    <!-- Connector arrow L2 to L3 -->
+    <g id="conn23">
+      <line x1="480" y1="400" x2="480" y2="280" stroke="#8b5cf6" stroke-width="2" opacity="0.5"/>
+      <polygon points="474,285 480,270 486,285" fill="#8b5cf6" opacity="0.5"/>
+    </g>
+
+    <!-- ====== Layer 3: Shapes ====== -->
+    <g id="layer3">
+      <rect x="120" y="140" width="720" height="140" rx="14" fill="#151d30" opacity="0.7"/>
+      <text x="150" y="178" font-family="Outfit" font-weight="600" font-size="24" fill="#06b6d4">Layer 3</text>
+      <text x="300" y="178" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Shapes</text>
+
+      <g id="shapeIcons">
+        <!-- Box 1: circle -->
+        <rect x="160" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#06b6d4" stroke-width="2"/>
+        <circle cx="195" cy="229" r="22" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+
+        <!-- Box 2: rectangle -->
+        <rect x="248" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#06b6d4" stroke-width="2"/>
+        <rect x="262" y="210" width="44" height="36" rx="3" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+
+        <!-- Box 3: triangle -->
+        <rect x="336" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#06b6d4" stroke-width="2"/>
+        <polygon points="371,206 348,254 394,254" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linejoin="round"/>
+
+        <!-- Box 4: oval -->
+        <rect x="424" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#06b6d4" stroke-width="2"/>
+        <ellipse cx="459" cy="229" rx="24" ry="16" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+
+        <!-- Box 5: star/complex shape -->
+        <rect x="512" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#06b6d4" stroke-width="2"/>
+        <polygon points="547,200 552,220 572,220 556,232 562,252 547,240 532,252 538,232 522,220 542,220" fill="none" stroke="#06b6d4" stroke-width="2"/>
+      </g>
+    </g>
+
+    <!-- ====== Right side: Layer 4 & 5 (higher abstraction) ====== -->
+
+    <!-- ====== Layer 4: Object Parts ====== -->
+    <g id="layer4">
+      <rect x="1080" y="400" width="720" height="140" rx="14" fill="#151d30" opacity="0.7"/>
+      <text x="1110" y="438" font-family="Outfit" font-weight="600" font-size="24" fill="#10b981">Layer 4</text>
+      <text x="1280" y="438" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Object Parts</text>
+
+      <g id="partIcons">
+        <!-- Box 1: eye -->
+        <rect x="1120" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#10b981" stroke-width="2"/>
+        <ellipse cx="1155" cy="485" rx="22" ry="14" fill="none" stroke="#10b981" stroke-width="2.5"/>
+        <circle cx="1155" cy="485" r="7" fill="#10b981"/>
+
+        <!-- Box 2: wheel -->
+        <rect x="1208" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#10b981" stroke-width="2"/>
+        <circle cx="1243" cy="489" r="20" fill="none" stroke="#10b981" stroke-width="2.5"/>
+        <circle cx="1243" cy="489" r="5" fill="#10b981"/>
+        <line x1="1243" y1="469" x2="1243" y2="509" stroke="#10b981" stroke-width="1.5" opacity="0.5"/>
+        <line x1="1223" y1="489" x2="1263" y2="489" stroke="#10b981" stroke-width="1.5" opacity="0.5"/>
+
+        <!-- Box 3: window -->
+        <rect x="1296" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#10b981" stroke-width="2"/>
+        <rect x="1310" y="466" width="42" height="46" rx="2" fill="none" stroke="#10b981" stroke-width="2.5"/>
+        <line x1="1331" y1="466" x2="1331" y2="512" stroke="#10b981" stroke-width="1.5"/>
+        <line x1="1310" y1="489" x2="1352" y2="489" stroke="#10b981" stroke-width="1.5"/>
+
+        <!-- Box 4: mouth/lips -->
+        <rect x="1384" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#10b981" stroke-width="2"/>
+        <path d="M1400,489 Q1419,498 1438,489" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M1400,489 Q1419,480 1438,489" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+
+        <!-- Box 5: door -->
+        <rect x="1472" y="454" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#10b981" stroke-width="2"/>
+        <rect x="1490" y="464" width="34" height="50" rx="2" fill="none" stroke="#10b981" stroke-width="2.5"/>
+        <circle cx="1518" cy="492" r="3" fill="#10b981"/>
+      </g>
+    </g>
+
+    <!-- Connector arrow L3 to L4 (diagonal across) -->
+    <g id="conn34">
+      <path d="M840,210 Q960,310 1080,470" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.5"/>
+      <polygon points="1075,462 1085,476 1073,472" fill="#06b6d4" opacity="0.5"/>
+    </g>
+
+    <!-- ====== Layer 5: Full Objects ====== -->
+    <g id="layer5">
+      <rect x="1080" y="140" width="720" height="140" rx="14" fill="#151d30" opacity="0.7"/>
+      <text x="1110" y="178" font-family="Outfit" font-weight="600" font-size="24" fill="#f97316">Layer 5</text>
+      <text x="1280" y="178" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Full Objects</text>
+
+      <g id="objectIcons">
+        <!-- Box 1: face outline -->
+        <rect x="1120" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#f97316" stroke-width="2"/>
+        <ellipse cx="1155" cy="225" rx="18" ry="22" fill="none" stroke="#f97316" stroke-width="2.5"/>
+        <circle cx="1147" cy="218" r="3" fill="#f97316"/>
+        <circle cx="1163" cy="218" r="3" fill="#f97316"/>
+        <path d="M1147,234 Q1155,240 1163,234" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+
+        <!-- Box 2: car outline -->
+        <rect x="1208" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#f97316" stroke-width="2"/>
+        <path d="M1222,244 L1226,228 L1240,218 L1258,218 L1264,228 L1268,244 Z" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="1232" cy="248" r="6" fill="none" stroke="#f97316" stroke-width="2"/>
+        <circle cx="1258" cy="248" r="6" fill="none" stroke="#f97316" stroke-width="2"/>
+
+        <!-- Box 3: house outline -->
+        <rect x="1296" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#f97316" stroke-width="2"/>
+        <polygon points="1331,206 1310,226 1352,226" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linejoin="round"/>
+        <rect x="1314" y="226" width="34" height="28" fill="none" stroke="#f97316" stroke-width="2.5"/>
+
+        <!-- Box 4: cat outline -->
+        <rect x="1384" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#f97316" stroke-width="2"/>
+        <ellipse cx="1419" cy="234" rx="16" ry="18" fill="none" stroke="#f97316" stroke-width="2.5"/>
+        <polygon points="1405,218 1408,202 1414,216" fill="none" stroke="#f97316" stroke-width="2"/>
+        <polygon points="1424,216 1430,202 1433,218" fill="none" stroke="#f97316" stroke-width="2"/>
+        <circle cx="1413" cy="230" r="2.5" fill="#f97316"/>
+        <circle cx="1425" cy="230" r="2.5" fill="#f97316"/>
+
+        <!-- Box 5: tree outline -->
+        <rect x="1472" y="194" width="70" height="70" rx="8" fill="#0b0f1a" stroke="#f97316" stroke-width="2"/>
+        <ellipse cx="1507" cy="220" rx="18" ry="16" fill="none" stroke="#f97316" stroke-width="2.5"/>
+        <line x1="1507" y1="236" x2="1507" y2="256" stroke="#f97316" stroke-width="3"/>
+      </g>
+    </g>
+
+    <!-- Connector arrow L4 to L5 -->
+    <g id="conn45">
+      <line x1="1440" y1="400" x2="1440" y2="280" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+      <polygon points="1434,285 1440,270 1446,285" fill="#10b981" opacity="0.5"/>
+    </g>
+
+    <!-- Bottom label -->
+    <g id="discoveryLabel">
+      <rect x="1080" y="660" width="720" height="140" rx="14" fill="#151d30" opacity="0.7"/>
+      <text x="1440" y="720" text-anchor="middle" font-family="Outfit" font-weight="600" font-size="26" fill="#e8ecf4">Each layer builds on the last</text>
+      <text x="1440" y="758" text-anchor="middle" font-family="Outfit" font-weight="400" font-size="22" fill="#8892a8">Features discovered automatically</text>
+    </g>
+
+  </g>
+</svg>
+
+<!-- Subtitles -->
+<div class="narration-sub" id="sub"></div>
+
+<script>
+gsap.registerPlugin(MotionPathPlugin);
+
+// ── Subtitle engine ──
+var T0 = performance.now();
+// Line 1 (0-18994ms): 44 words, ~431.7ms/word
+// Sentences: 4, 15, 4, 10, 6, 5 words
+// Line 2 (19946-50341ms): 63 words, ~482.5ms/word
+// Sentences: 6, 7, 10, 8, 4, 6, 8, 4, 10 words
+var subs = [
+  {"start": 0, "end": 1727, "text": "Modern AI goes deep."},
+  {"start": 1727, "end": 8202, "text": "AlexNet, the model that kicked off the deep learning revolution in 2012, had eight layers."},
+  {"start": 8202, "end": 9929, "text": "VGGNet pushed to nineteen."},
+  {"start": 9929, "end": 14246, "text": "ResNet in 2015 went to a hundred and fifty-two."},
+  {"start": 14246, "end": 16836, "text": "GPT-3 has ninety-six transformer layers."},
+  {"start": 16836, "end": 18994, "text": "Each generation keeps going deeper."},
+  {"start": 19946, "end": 22841, "text": "Why does depth work so well?"},
+  {"start": 22841, "end": 26218, "text": "Because each layer extracts increasingly abstract features."},
+  {"start": 26218, "end": 31043, "text": "In an image recognition network, the first layer detects edges."},
+  {"start": 31043, "end": 34903, "text": "The second combines edges into textures and corners."},
+  {"start": 34903, "end": 36833, "text": "The third finds shapes."},
+  {"start": 36833, "end": 39728, "text": "Later layers recognize eyes, wheels, windows."},
+  {"start": 39728, "end": 43588, "text": "The final layers identify whole objects and scenes."},
+  {"start": 43588, "end": 45518, "text": "Nobody programs these features."},
+  {"start": 45518, "end": 50341, "text": "The network discovers them on its own, layer by layer."}
+];
+(function tick() {
+  var t = performance.now() - (window.T0_override || T0);
+  var el = document.getElementById("sub");
+  var active = null;
+  for (var i = 0; i < subs.length; i++) {
+    if (t >= subs[i].start && t < subs[i].end) { active = subs[i].text; break; }
+  }
+  el.textContent = active || '';
+  el.style.opacity = active ? '1' : '0';
+  requestAnimationFrame(tick);
+})();
+
+// ── Initial states: Phase 1 ──
+gsap.set("#p1Title", { opacity: 0, y: 14 });
+gsap.set("#p1Badge", { opacity: 0, y: 10 });
+gsap.set("#timeAxis", { opacity: 0 });
+gsap.set("#yearMarkers", { opacity: 0 });
+gsap.set("#alexnet", { opacity: 0, y: 14 });
+gsap.set("#vggnet", { opacity: 0, y: 14 });
+gsap.set("#resnet", { opacity: 0, y: 14 });
+gsap.set("#gpt3", { opacity: 0, y: 14 });
+gsap.set("#trendArrow", { opacity: 0 });
+
+// ── Initial states: Phase 2 ──
+gsap.set("#phase2", { opacity: 0 });
+gsap.set("#p2Title", { opacity: 0, y: 14 });
+gsap.set("#backbone", { opacity: 0 });
+gsap.set("#layer1", { opacity: 0, y: 14 });
+gsap.set("#layer2", { opacity: 0, y: 14 });
+gsap.set("#layer3", { opacity: 0, y: 14 });
+gsap.set("#layer4", { opacity: 0, y: 14 });
+gsap.set("#layer5", { opacity: 0, y: 14 });
+gsap.set("#conn12", { opacity: 0 });
+gsap.set("#conn23", { opacity: 0 });
+gsap.set("#conn34", { opacity: 0 });
+gsap.set("#conn45", { opacity: 0 });
+gsap.set("#discoveryLabel", { opacity: 0, y: 14 });
+
+// ── Ambient: subtle breathing on bar blocks ──
+gsap.to("#resnetBlock", {
+  opacity: 0.65, duration: 2.5, ease: "sine.inOut", yoyo: true, repeat: -1
+});
+gsap.to("#gpt3Block", {
+  opacity: 0.65, duration: 3.0, ease: "sine.inOut", yoyo: true, repeat: -1
+});
+
+// ── Master timeline ──
+var tl = gsap.timeline();
+
+// ═══════════════════════════════════════════════════════
+// PHASE 1: Subs 1-6 (0 - 18.9s)
+// Depth timeline: landmark networks
+// ═══════════════════════════════════════════════════════
+
+// Sub 1 (0-1.7s): "Modern AI goes deep."
+tl.to("#p1Title", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.2)
+  .to("#p1Badge", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.5)
+  .to("#timeAxis", { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.7)
+  .to("#yearMarkers", { opacity: 1, duration: 0.5, ease: "power2.out" }, 0.9)
+
+// Sub 2 (1.7-8.2s): "AlexNet, the model that kicked off the deep learning revolution in 2012, had eight layers."
+  .to("#alexnet", { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.3)" }, 1.8)
+
+// Sub 3 (8.2-9.9s): "VGGNet pushed to nineteen."
+  .to("#vggnet", { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.3)" }, 8.3)
+
+// Sub 4 (9.9-14.2s): "ResNet in 2015 went to a hundred and fifty-two."
+  .to("#resnet", { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.4)" }, 10.0)
+  // Pulse the ResNet block to emphasize dramatic height
+  .to("#resnetBlock", { opacity: 1, duration: 0.3, ease: "power2.out" }, 11.0)
+  .to("#resnetBlock", { opacity: 0.8, duration: 0.5 }, 11.5)
+
+// Sub 5 (14.2-16.8s): "GPT-3 has ninety-six transformer layers."
+  .to("#gpt3", { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.3)" }, 14.3)
+
+// Sub 6 (16.8-19.0s): "Each generation keeps going deeper."
+  .to("#trendArrow", { opacity: 1, duration: 1.0, ease: "power2.out" }, 17.0)
+  // Brief flash on all columns
+  .to(".alexBar", { fill: "#60a5fa", duration: 0.3, stagger: 0.02 }, 17.5)
+  .to(".alexBar", { fill: "url(#blueGrad)", duration: 0.5, stagger: 0.02 }, 18.0)
+
+// ═══════════════════════════════════════════════════════
+// Phase transition (~18.9 - 19.9s)
+// ═══════════════════════════════════════════════════════
+  .to("#phase1", { opacity: 0, duration: 0.5, ease: "power2.out" }, 18.5)
+  .to("#phaseCover", { opacity: 1, duration: 0.4 }, 18.8)
+  .to("#phase2", { opacity: 1, duration: 0.01 }, 19.5)
+  .to("#phaseCover", { opacity: 0, duration: 0.01 }, 19.5)
+
+// ═══════════════════════════════════════════════════════
+// PHASE 2: Subs 7-15 (19.9 - 50.3s)
+// Feature hierarchy
+// ═══════════════════════════════════════════════════════
+
+// Sub 7 (19.9-22.8s): "Why does depth work so well?"
+  .to("#p2Title", { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 20.0)
+  .to("#backbone", { opacity: 1, duration: 0.8, ease: "power2.out" }, 20.3)
+
+// Sub 8 (22.8-26.2s): "Because each layer extracts increasingly abstract features."
+  // Show all layer panels faintly as a preview
+  .to("#layer1", { opacity: 0.3, y: 0, duration: 0.6, ease: "power2.out" }, 23.0)
+  .to("#layer2", { opacity: 0.2, y: 0, duration: 0.5, ease: "power2.out" }, 23.3)
+  .to("#layer3", { opacity: 0.2, y: 0, duration: 0.5, ease: "power2.out" }, 23.6)
+  .to("#layer4", { opacity: 0.2, y: 0, duration: 0.5, ease: "power2.out" }, 23.9)
+  .to("#layer5", { opacity: 0.2, y: 0, duration: 0.5, ease: "power2.out" }, 24.2)
+  .to("#conn12", { opacity: 0.2, duration: 0.3 }, 24.5)
+  .to("#conn23", { opacity: 0.2, duration: 0.3 }, 24.7)
+  .to("#conn34", { opacity: 0.2, duration: 0.3 }, 24.9)
+  .to("#conn45", { opacity: 0.2, duration: 0.3 }, 25.1)
+
+// Sub 9 (26.2-31.0s): "In an image recognition network, the first layer detects edges."
+  .to("#layer1", { opacity: 1, duration: 0.6, ease: "power2.out" }, 26.3)
+  // Highlight edge icons sequentially
+  .to("#edgeIcons rect", { stroke: "#60a5fa", duration: 0.3, stagger: 0.2, ease: "power2.out" }, 27.5)
+  .to("#edgeIcons rect", { stroke: "#3b82f6", duration: 0.5, stagger: 0.15 }, 28.5)
+  .to("#conn12", { opacity: 0.7, duration: 0.4, ease: "power2.out" }, 30.0)
+
+// Sub 10 (31.0-34.9s): "The second combines edges into textures and corners."
+  .to("#layer2", { opacity: 1, duration: 0.6, ease: "power2.out" }, 31.1)
+  .to("#textureIcons rect", { stroke: "#a78bfa", duration: 0.3, stagger: 0.18, ease: "power2.out" }, 32.0)
+  .to("#textureIcons rect", { stroke: "#8b5cf6", duration: 0.5, stagger: 0.12 }, 33.0)
+  .to("#conn23", { opacity: 0.7, duration: 0.4, ease: "power2.out" }, 34.0)
+
+// Sub 11 (34.9-36.8s): "The third finds shapes."
+  .to("#layer3", { opacity: 1, duration: 0.6, ease: "power2.out" }, 35.0)
+  .to("#shapeIcons rect", { stroke: "#22d3ee", duration: 0.3, stagger: 0.12, ease: "power2.out" }, 35.5)
+  .to("#shapeIcons rect", { stroke: "#06b6d4", duration: 0.5, stagger: 0.1 }, 36.0)
+
+// Sub 12 (36.8-39.7s): "Later layers recognize eyes, wheels, windows."
+  .to("#conn34", { opacity: 0.7, duration: 0.4, ease: "power2.out" }, 36.9)
+  .to("#layer4", { opacity: 1, duration: 0.6, ease: "power2.out" }, 37.0)
+  .to("#partIcons rect", { stroke: "#34d399", duration: 0.3, stagger: 0.15, ease: "power2.out" }, 37.8)
+  .to("#partIcons rect", { stroke: "#10b981", duration: 0.5, stagger: 0.1 }, 38.8)
+  .to("#conn45", { opacity: 0.7, duration: 0.4, ease: "power2.out" }, 39.0)
+
+// Sub 13 (39.7-43.6s): "The final layers identify whole objects and scenes."
+  .to("#layer5", { opacity: 1, duration: 0.6, ease: "power2.out" }, 39.8)
+  .to("#objectIcons rect", { stroke: "#fb923c", duration: 0.3, stagger: 0.15, ease: "power2.out" }, 40.5)
+  .to("#objectIcons rect", { stroke: "#f97316", duration: 0.5, stagger: 0.1 }, 41.5)
+  // Pulse the final layer to emphasize completion
+  .to("#layer5 > rect", { opacity: 0.9, duration: 0.3, ease: "power2.out" }, 42.5)
+  .to("#layer5 > rect", { opacity: 0.7, duration: 0.5 }, 43.0)
+
+// Sub 14 (43.6-45.5s): "Nobody programs these features."
+  .to("#discoveryLabel", { opacity: 1, y: 0, duration: 0.7, ease: "back.out(1.3)" }, 43.7)
+
+// Sub 15 (45.5-50.3s): "The network discovers them on its own, layer by layer."
+  // Sequential pulse through all layers bottom to top, then right side top to bottom
+  .to("#layer1 > rect", { stroke: "#3b82f6", duration: 0.3, ease: "power2.out" }, 46.0)
+  .to("#layer1 > rect", { stroke: "none", duration: 0.4 }, 46.4)
+  .to("#layer2 > rect", { stroke: "#8b5cf6", duration: 0.3, ease: "power2.out" }, 46.8)
+  .to("#layer2 > rect", { stroke: "none", duration: 0.4 }, 47.2)
+  .to("#layer3 > rect", { stroke: "#06b6d4", duration: 0.3, ease: "power2.out" }, 47.5)
+  .to("#layer3 > rect", { stroke: "none", duration: 0.4 }, 47.9)
+  .to("#layer4 > rect", { stroke: "#10b981", duration: 0.3, ease: "power2.out" }, 48.2)
+  .to("#layer4 > rect", { stroke: "none", duration: 0.4 }, 48.6)
+  .to("#layer5 > rect", { stroke: "#f97316", duration: 0.3, ease: "power2.out" }, 49.0)
+  .to("#layer5 > rect", { stroke: "none", duration: 0.4 }, 49.4)
+  // Final glow on discovery label
+  .to("#discoveryLabel > rect", { stroke: "#f97316", duration: 0.4, ease: "power2.out" }, 49.5)
+  .to("#discoveryLabel > rect", { stroke: "none", duration: 0.5 }, 50.0);
+
+// ── Ambient: breathing on phase 2 layer panels ──
+gsap.to("#backbone line", {
+  opacity: 0.7, duration: 3.0, ease: "sine.inOut", yoyo: true, repeat: -1
+});
+
+</script>
+<!-- SCENE-AUDIO-PREVIEW -->
+<audio id="sceneAudio" src="../audio/chunks/chunk_s08_g00_narrator.mp3" preload="auto"></audio>
+<div id="playOverlay" style="position:absolute;inset:0;z-index:9999;background:rgba(11,15,26,0.92);display:flex;justify-content:center;align-items:center;cursor:pointer;">
+  <div style="text-align:center;">
+    <div style="width:80px;height:80px;border-radius:50%;background:#f97316;display:flex;justify-content:center;align-items:center;margin:0 auto 16px;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19"/></svg>
+    </div>
+    <div style="font-family:'Outfit',sans-serif;font-size:20px;color:#e8ecf4;">Click to Play</div>
+  </div>
+</div>
+<script>
+(function() {
+  var overlay = document.getElementById('playOverlay');
+  var audio = document.getElementById('sceneAudio');
+  overlay.addEventListener('click', function() {
+    if (typeof T0 !== 'undefined') window.T0_override = performance.now();
+    audio.play().catch(function() {});
+    overlay.style.display = 'none';
+    if (typeof tl !== 'undefined' && tl.restart) tl.restart();
+  });
+})();
+</script>
+<!-- /SCENE-AUDIO-PREVIEW -->
+</body>
+</html>
