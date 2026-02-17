@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=1920">
 <title>Scene 01 — Series Intro</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
@@ -188,19 +188,34 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
     <line class="netConn l3o" x1="120" y1="0" x2="380" y2="60" stroke="#06b6d4" stroke-width="2" opacity="0"/>
     <line class="netConn l3o" x1="120" y1="100" x2="380" y2="60" stroke="#06b6d4" stroke-width="2" opacity="0"/>
 
-    <!-- Hidden path elements for MotionPathPlugin data flow -->
-    <!-- Layer 1→2: 3 representative paths -->
-    <path id="flowPath_l12_a" d="M-400,-80 L-120,-140" fill="none" stroke="none"/>
-    <path id="flowPath_l12_b" d="M-400,0 L-120,-40" fill="none" stroke="none"/>
-    <path id="flowPath_l12_c" d="M-400,80 L-120,60" fill="none" stroke="none"/>
-    <!-- Layer 2→3: 3 representative paths -->
-    <path id="flowPath_l23_a" d="M-120,-140 L120,-100" fill="none" stroke="none"/>
-    <path id="flowPath_l23_b" d="M-120,-40 L120,0" fill="none" stroke="none"/>
-    <path id="flowPath_l23_c" d="M-120,60 L120,100" fill="none" stroke="none"/>
-    <!-- Layer 3→Output: 3 representative paths -->
-    <path id="flowPath_l3o_a" d="M120,-100 L380,-20" fill="none" stroke="none"/>
-    <path id="flowPath_l3o_b" d="M120,0 L380,60" fill="none" stroke="none"/>
-    <path id="flowPath_l3o_c" d="M120,100 L380,-20" fill="none" stroke="none"/>
+    <!-- Hidden path elements for MotionPathPlugin — ALL connections -->
+    <!-- Layer 1→2: 9 paths (3 inputs × 3 hidden) -->
+    <path id="fp12_0" d="M-400,-80 L-120,-140" fill="none" stroke="none"/>
+    <path id="fp12_1" d="M-400,-80 L-120,-40" fill="none" stroke="none"/>
+    <path id="fp12_2" d="M-400,-80 L-120,60" fill="none" stroke="none"/>
+    <path id="fp12_3" d="M-400,0 L-120,-140" fill="none" stroke="none"/>
+    <path id="fp12_4" d="M-400,0 L-120,-40" fill="none" stroke="none"/>
+    <path id="fp12_5" d="M-400,0 L-120,60" fill="none" stroke="none"/>
+    <path id="fp12_6" d="M-400,80 L-120,-140" fill="none" stroke="none"/>
+    <path id="fp12_7" d="M-400,80 L-120,-40" fill="none" stroke="none"/>
+    <path id="fp12_8" d="M-400,80 L-120,60" fill="none" stroke="none"/>
+    <!-- Layer 2→3: 9 paths -->
+    <path id="fp23_0" d="M-120,-140 L120,-100" fill="none" stroke="none"/>
+    <path id="fp23_1" d="M-120,-140 L120,0" fill="none" stroke="none"/>
+    <path id="fp23_2" d="M-120,-140 L120,100" fill="none" stroke="none"/>
+    <path id="fp23_3" d="M-120,-40 L120,-100" fill="none" stroke="none"/>
+    <path id="fp23_4" d="M-120,-40 L120,0" fill="none" stroke="none"/>
+    <path id="fp23_5" d="M-120,-40 L120,100" fill="none" stroke="none"/>
+    <path id="fp23_6" d="M-120,60 L120,-100" fill="none" stroke="none"/>
+    <path id="fp23_7" d="M-120,60 L120,0" fill="none" stroke="none"/>
+    <path id="fp23_8" d="M-120,60 L120,100" fill="none" stroke="none"/>
+    <!-- Layer 3→Output: 6 paths (3 hidden × 2 output) -->
+    <path id="fp3o_0" d="M120,-100 L380,-20" fill="none" stroke="none"/>
+    <path id="fp3o_1" d="M120,-100 L380,60" fill="none" stroke="none"/>
+    <path id="fp3o_2" d="M120,0 L380,-20" fill="none" stroke="none"/>
+    <path id="fp3o_3" d="M120,0 L380,60" fill="none" stroke="none"/>
+    <path id="fp3o_4" d="M120,100 L380,-20" fill="none" stroke="none"/>
+    <path id="fp3o_5" d="M120,100 L380,60" fill="none" stroke="none"/>
 
     <!-- Layer 1: Input nodes (3) -->
     <g id="layer1">
@@ -244,16 +259,31 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
     </g>
     <text id="layerLabelOut" x="380" y="130" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="20" font-weight="300" fill="#8892a8" opacity="0">Output</text>
 
-    <!-- Data flow dots (animated with MotionPathPlugin) -->
-    <circle class="flowDot flowDot12" r="5" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot12" r="5" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot12" r="5" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot23" r="5" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot23" r="5" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot23" r="5" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot3o" r="5" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot3o" r="5" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
-    <circle class="flowDot flowDot3o" r="5" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <!-- Data flow dots — 9 per L1→L2, 9 per L2→L3, 6 per L3→Out -->
+    <circle class="flowDot fd12" id="fd12_0" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_1" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_2" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_3" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_4" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_5" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_6" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_7" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd12" id="fd12_8" r="4" fill="#3b82f6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_0" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_1" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_2" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_3" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_4" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_5" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_6" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_7" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd23" id="fd23_8" r="4" fill="#8b5cf6" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd3o" id="fd3o_0" r="4" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd3o" id="fd3o_1" r="4" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd3o" id="fd3o_2" r="4" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd3o" id="fd3o_3" r="4" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd3o" id="fd3o_4" r="4" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
+    <circle class="flowDot fd3o" id="fd3o_5" r="4" fill="#06b6d4" opacity="0" filter="url(#flowDotGlow)"/>
 
     <!-- Curved decision boundary -->
     <g id="curvedBoundary">
@@ -274,29 +304,29 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;b
       <!-- The curve path -->
       <path id="curvePath" d="M-460,260 C-380,200 -280,340 -160,240 S40,180 160,280 S340,200 460,260" stroke="url(#curveGrad)" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0"/>
 
-      <!-- Scatter dots — positioned carefully relative to the curve -->
-      <!-- Curve approximate y values: x=-400→y≈220, x=-280→y≈300, x=-160→y≈240, x=0→y≈200, x=160→y≈280, x=340→y≈220, x=460→y≈260 -->
-      <!-- Green dots BELOW curve (higher y) -->
-      <circle class="curveDotG" cx="-380" cy="280" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="-280" cy="350" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="-160" cy="300" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="-40" cy="260" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="100" cy="330" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="240" cy="290" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="380" cy="310" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="-200" cy="330" r="8" fill="#10b981" opacity="0"/>
-      <circle class="curveDotG" cx="160" cy="340" r="8" fill="#10b981" opacity="0"/>
+      <!-- Scatter dots — positioned with generous margin from curve -->
+      <!-- Curve sampled: x=-460→y=260, x=-380→y≈210, x=-280→y≈310, x=-160→y=240, x=-40→y≈195, x=80→y≈230, x=160→y=280, x=280→y≈225, x=380→y≈250, x=460→y=260 -->
+      <!-- Green dots BELOW curve (y at least 40px higher than curve) -->
+      <circle class="curveDotG" cx="-380" cy="290" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-280" cy="370" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-160" cy="310" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-40" cy="280" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="80" cy="310" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="200" cy="330" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="380" cy="320" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="-210" cy="350" r="8" fill="#10b981" opacity="0"/>
+      <circle class="curveDotG" cx="300" cy="300" r="8" fill="#10b981" opacity="0"/>
 
-      <!-- Blue dots ABOVE curve (lower y) -->
-      <circle class="curveDotR" cx="-400" cy="170" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="-280" cy="240" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="-160" cy="190" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="0" cy="160" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="160" cy="220" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="320" cy="170" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="440" cy="210" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="-100" cy="180" r="8" fill="#3b82f6" opacity="0"/>
-      <circle class="curveDotR" cx="80" cy="200" r="8" fill="#3b82f6" opacity="0"/>
+      <!-- Blue dots ABOVE curve (y at least 40px lower than curve) -->
+      <circle class="curveDotR" cx="-400" cy="160" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="-300" cy="210" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="-160" cy="180" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="-40" cy="155" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="80" cy="175" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="200" cy="170" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="340" cy="170" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="-100" cy="165" r="8" fill="#3b82f6" opacity="0"/>
+      <circle class="curveDotR" cx="440" cy="200" r="8" fill="#3b82f6" opacity="0"/>
     </g>
 
     <!-- Network title label -->
@@ -636,52 +666,61 @@ tl.to("#titleGroup", { opacity: 1, duration: 0.01 }, 0.2)
 // Network label appears
   .to("#networkLabel", { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 7.5);
 
-// ── DATA FLOW BURST 1 (8.0s): Input → Hidden1 → Hidden2 → Output ──
-// Layer 1→2 flow dots
-var flowDots12 = document.querySelectorAll('.flowDot12');
-var flowDots23 = document.querySelectorAll('.flowDot23');
-var flowDots3o = document.querySelectorAll('.flowDot3o');
-var flowPaths12 = ['flowPath_l12_a', 'flowPath_l12_b', 'flowPath_l12_c'];
-var flowPaths23 = ['flowPath_l23_a', 'flowPath_l23_b', 'flowPath_l23_c'];
-var flowPaths3o = ['flowPath_l3o_a', 'flowPath_l3o_b', 'flowPath_l3o_c'];
-
+// ── DATA FLOW — all connections light up with traveling dots ──
 function animateFlowWave(startTime) {
-  // Layer 1→2
-  flowDots12.forEach(function(dot, i) {
-    tl.set(dot, { opacity: 0.9, x: 0, y: 0 }, startTime + i * 0.08)
-      .to(dot, {
-        motionPath: { path: "#" + flowPaths12[i], align: "#" + flowPaths12[i], alignOrigin: [0.5, 0.5] },
-        duration: 0.5, ease: "power1.in"
-      }, startTime + i * 0.08)
-      .set(dot, { opacity: 0 }, startTime + i * 0.08 + 0.5);
-  });
-  // Brighten L12 connections during flow
-  tl.to(".l12", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, startTime)
-    .to(".l12", { opacity: 0.35, duration: 0.3 }, startTime + 0.5);
+  var i;
+  // Layer 1→2: 9 dots on 9 paths, staggered
+  for (i = 0; i < 9; i++) {
+    (function(idx) {
+      var dotId = "#fd12_" + idx;
+      var pathId = "#fp12_" + idx;
+      var t = startTime + idx * 0.04;
+      tl.set(dotId, { opacity: 0.85, x: 0, y: 0 }, t)
+        .to(dotId, {
+          motionPath: { path: pathId, align: pathId, alignOrigin: [0.5, 0.5] },
+          duration: 0.45, ease: "power1.in"
+        }, t)
+        .set(dotId, { opacity: 0 }, t + 0.45);
+    })(i);
+  }
+  tl.to(".l12", { opacity: 0.6, duration: 0.25, ease: "power2.out" }, startTime)
+    .to(".l12", { opacity: 0.35, duration: 0.3 }, startTime + 0.45);
 
-  // Layer 2→3 (staggered 0.4s after)
-  flowDots23.forEach(function(dot, i) {
-    tl.set(dot, { opacity: 0.9, x: 0, y: 0 }, startTime + 0.4 + i * 0.08)
-      .to(dot, {
-        motionPath: { path: "#" + flowPaths23[i], align: "#" + flowPaths23[i], alignOrigin: [0.5, 0.5] },
-        duration: 0.5, ease: "power1.in"
-      }, startTime + 0.4 + i * 0.08)
-      .set(dot, { opacity: 0 }, startTime + 0.4 + i * 0.08 + 0.5);
-  });
-  tl.to(".l23", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, startTime + 0.4)
-    .to(".l23", { opacity: 0.35, duration: 0.3 }, startTime + 0.9);
+  // Layer 2→3: 9 dots, starts 0.35s later
+  var t23 = startTime + 0.35;
+  for (i = 0; i < 9; i++) {
+    (function(idx) {
+      var dotId = "#fd23_" + idx;
+      var pathId = "#fp23_" + idx;
+      var t = t23 + idx * 0.04;
+      tl.set(dotId, { opacity: 0.85, x: 0, y: 0 }, t)
+        .to(dotId, {
+          motionPath: { path: pathId, align: pathId, alignOrigin: [0.5, 0.5] },
+          duration: 0.45, ease: "power1.in"
+        }, t)
+        .set(dotId, { opacity: 0 }, t + 0.45);
+    })(i);
+  }
+  tl.to(".l23", { opacity: 0.6, duration: 0.25, ease: "power2.out" }, t23)
+    .to(".l23", { opacity: 0.35, duration: 0.3 }, t23 + 0.45);
 
-  // Layer 3→output (staggered 0.8s after)
-  flowDots3o.forEach(function(dot, i) {
-    tl.set(dot, { opacity: 0.9, x: 0, y: 0 }, startTime + 0.8 + i * 0.08)
-      .to(dot, {
-        motionPath: { path: "#" + flowPaths3o[i], align: "#" + flowPaths3o[i], alignOrigin: [0.5, 0.5] },
-        duration: 0.5, ease: "power1.in"
-      }, startTime + 0.8 + i * 0.08)
-      .set(dot, { opacity: 0 }, startTime + 0.8 + i * 0.08 + 0.5);
-  });
-  tl.to(".l3o", { opacity: 0.6, duration: 0.3, ease: "power2.out" }, startTime + 0.8)
-    .to(".l3o", { opacity: 0.35, duration: 0.3 }, startTime + 1.3);
+  // Layer 3→Output: 6 dots, starts 0.7s later
+  var t3o = startTime + 0.7;
+  for (i = 0; i < 6; i++) {
+    (function(idx) {
+      var dotId = "#fd3o_" + idx;
+      var pathId = "#fp3o_" + idx;
+      var t = t3o + idx * 0.05;
+      tl.set(dotId, { opacity: 0.85, x: 0, y: 0 }, t)
+        .to(dotId, {
+          motionPath: { path: pathId, align: pathId, alignOrigin: [0.5, 0.5] },
+          duration: 0.45, ease: "power1.in"
+        }, t)
+        .set(dotId, { opacity: 0 }, t + 0.45);
+    })(i);
+  }
+  tl.to(".l3o", { opacity: 0.6, duration: 0.25, ease: "power2.out" }, t3o)
+    .to(".l3o", { opacity: 0.35, duration: 0.3 }, t3o + 0.45);
 }
 
 // First data flow wave — "lines start combining"
