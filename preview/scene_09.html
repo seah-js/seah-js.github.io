@@ -639,5 +639,26 @@ gsap.to(".mascot-chest-3", {
   opacity:0.9, attr:{r:8}, duration:2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:64.5
 });
 </script>
+<!-- SCENE-AUDIO-PREVIEW -->
+<audio id="sceneAudio" src="../audio/chunks/chunk_s08_g00_narrator.mp3" preload="auto"></audio>
+<div id="playOverlay" style="position:absolute;inset:0;z-index:9999;background:rgba(11,15,26,0.92);display:flex;justify-content:center;align-items:center;cursor:pointer;">
+  <div style="text-align:center;">
+    <div style="width:80px;height:80px;border-radius:50%;background:#f97316;display:flex;justify-content:center;align-items:center;margin:0 auto 16px;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19"/></svg>
+    </div>
+  </div>
+</div>
+<script>
+(function() {
+  var overlay = document.getElementById("playOverlay");
+  var audio = document.getElementById("sceneAudio");
+  overlay.addEventListener("click", function() {
+    audio.play().catch(function() {});
+    overlay.style.display = "none";
+    if (typeof tl !== "undefined" && tl.restart) tl.restart();
+  });
+})();
+</script>
+<!-- /SCENE-AUDIO-PREVIEW -->
 </body>
 </html>
