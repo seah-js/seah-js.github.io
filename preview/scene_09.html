@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene 09 — The Three Gates</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/MotionPathPlugin.min.js"></script>
+<style>
+:root{--bg:#0b0f1a;--surface:#151d30;--text:#e8ecf4;--muted:#8892a8;--dim:#4a5568;--accent:#f97316;--blue:#3b82f6;--purple:#8b5cf6;--red:#ef4444;--green:#10b981;--cyan:#06b6d4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;width:1920px;height:1080px;overflow:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");}
+</style>
+</head>
+<body>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;top:0;left:0">
+<defs>
+  <filter id="glowSoft" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowRed" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowBlue" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowCyan" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+  </marker>
+  <marker id="arrowCyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4"/>
+  </marker>
+  <marker id="arrowMuted" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#8892a8"/>
+  </marker>
+  <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+  </marker>
+  <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+  </marker>
+</defs>
+
+<!-- OBS background -->
+<rect width="1920" height="1080" fill="#0b0f1a"/>
+
+<!-- Subtle grid -->
+<g opacity="0.04">
+  <line x1="480" y1="0" x2="480" y2="1080" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="960" y1="0" x2="960" y2="1080" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="1440" y1="0" x2="1440" y2="1080" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="0" y1="360" x2="1920" y2="360" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="0" y1="540" x2="1920" y2="540" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="0" y1="720" x2="1920" y2="720" stroke="#e8ecf4" stroke-width="1"/>
+</g>
+
+<!-- ===== PHASE 1: FORGET GATE (Line 1, 6 sentences) =====
+
+  Layout:
+  - Left side: LSTM cell diagram with forget gate highlighted
+  - Right side: Example with "She" / "He" subject swap
+  
+  LSTM cell schematic (left half):
+    Cell rect: x=100, y=140, width=800, height=600 (cx=500)
+    Cell state path: y=240 (top)
+    Hidden state path: y=640 (bottom)
+    Forget gate box: centered at (500, 420), size 260x160
+  
+  Example panel (right half):
+    Panel: x=1040, y=140, width=760, height=600 (cx=1420)
+    
+  Full layout center: (100 + 1800)/2 = 950 ≈ 960
+  Adjusted: cell x=120..920 (cx=520), example x=1040..1800 (cx=1420)
+  Center: (120+1800)/2 = 960 ✓
+-->
+
+<g id="phase1" opacity="1">
+  <!-- Phase label -->
+  <text x="960" y="90" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="20" font-weight="500" fill="#8892a8" opacity="0.6">1 / 3</text>
+
+  <!-- LSTM cell schematic -->
+  <g id="forgetCellGroup" opacity="0">
+    <rect x="120" y="140" width="800" height="600" rx="20" fill="#151d30" stroke="#4a5568" stroke-width="2" opacity="0.4"/>
+    <text x="520" y="120" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="24" font-weight="600" fill="#8892a8">LSTM Cell</text>
+
+    <!-- Cell state path (top) — green -->
+    <line x1="80" y1="240" x2="160" y2="240" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+    <line x1="880" y1="240" x2="960" y2="240" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+    <line x1="180" y1="240" x2="860" y2="240" stroke="#10b981" stroke-width="3" stroke-dasharray="12 6" opacity="0.5"/>
+    <text x="80" y="220" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#10b981">C</text>
+    <text x="92" y="228" font-family="'Instrument Serif',serif" font-style="italic" font-size="13" fill="#10b981">t-1</text>
+    <text x="960" y="220" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#10b981">C</text>
+    <text x="972" y="228" font-family="'Instrument Serif',serif" font-style="italic" font-size="13" fill="#10b981">t</text>
+
+    <!-- Hidden state path (bottom) — cyan -->
+    <line x1="80" y1="640" x2="160" y2="640" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+    <line x1="880" y1="640" x2="960" y2="640" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+    <text x="80" y="620" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#06b6d4">h</text>
+    <text x="92" y="628" font-family="'Instrument Serif',serif" font-style="italic" font-size="13" fill="#06b6d4">t-1</text>
+    <text x="960" y="620" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#06b6d4">h</text>
+    <text x="972" y="628" font-family="'Instrument Serif',serif" font-style="italic" font-size="13" fill="#06b6d4">t</text>
+
+    <!-- Input x_t -->
+    <line x1="520" y1="800" x2="520" y2="760" stroke="#8892a8" stroke-width="2" marker-end="url(#arrowMuted)"/>
+    <text x="520" y="828" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#8892a8">x</text>
+    <text x="532" y="836" font-family="'Instrument Serif',serif" font-style="italic" font-size="13" fill="#8892a8">t</text>
+  </g>
+
+  <!-- Forget gate box (highlighted) -->
+  <g id="forgetGateHighlight" opacity="0">
+    <rect x="390" y="340" width="260" height="160" rx="16" fill="#0b0f1a" stroke="#ef4444" stroke-width="3"/>
+    <text x="520" y="400" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="28" font-weight="700" fill="#ef4444">Forget Gate</text>
+    <!-- Sigma symbol -->
+    <text x="520" y="470" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="32" fill="#ef4444" opacity="0.8">\u03C3</text>
+  </g>
+
+  <!-- Input arrows to forget gate: h_{t-1} and x_t -->
+  <g id="forgetInputArrows" opacity="0">
+    <!-- h_{t-1} feeds into forget gate from left -->
+    <line x1="200" y1="640" x2="200" y2="420" stroke="#06b6d4" stroke-width="2" stroke-dasharray="6 4"/>
+    <line x1="200" y1="420" x2="375" y2="420" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrowCyan)"/>
+    <text x="280" y="408" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#06b6d4">h</text>
+    <text x="290" y="414" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#06b6d4">t-1</text>
+    
+    <!-- x_t feeds into forget gate from below -->
+    <line x1="520" y1="760" x2="520" y2="520" stroke="#8892a8" stroke-width="2" marker-end="url(#arrowMuted)"/>
+    <text x="545" y="700" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#8892a8">x</text>
+    <text x="554" y="706" font-family="'IBM Plex Mono',monospace" font-size="10" fill="#8892a8">t</text>
+  </g>
+
+  <!-- Sigmoid output → multiply with cell state -->
+  <g id="forgetMultiply" opacity="0">
+    <!-- Arrow from gate up to cell state -->
+    <line x1="520" y1="330" x2="520" y2="260" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+    <!-- Multiply symbol (circle with X) -->
+    <circle cx="520" cy="240" r="18" fill="#0b0f1a" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="510" y1="230" x2="530" y2="250" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="530" y1="230" x2="510" y2="250" stroke="#ef4444" stroke-width="2.5"/>
+    <!-- Label showing 0→1 output -->
+    <text x="560" y="310" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#ef4444">0..1</text>
+  </g>
+
+  <!-- Close to zero / close to one visual indicators -->
+  <g id="forgetZero" opacity="0">
+    <!--
+      Two indicators showing what 0 and 1 mean
+      Positioned below the gate, left and right
+      Left (zero/forget): x=340, y=550
+      Right (one/keep): x=680, y=550
+    -->
+    <rect x="340" y="540" width="140" height="60" rx="10" fill="#ef4444" opacity="0.15"/>
+    <text x="410" y="577" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="18" font-weight="600" fill="#ef4444">0 = forget</text>
+  </g>
+  <g id="forgetOne" opacity="0">
+    <rect x="560" y="540" width="140" height="60" rx="10" fill="#10b981" opacity="0.15"/>
+    <text x="630" y="577" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="18" font-weight="600" fill="#10b981">1 = keep</text>
+  </g>
+
+  <!-- Example panel (right side) -->
+  <!--
+    Panel: x=1040, y=140, width=760, height=600 (cx=1420)
+    Shows "She went to... He then..." → forget gate erases "She"
+    
+    Cell state slots visualized as horizontal bars:
+    Slot y positions: 280, 370, 460
+    Labels at left of slots
+    Slot bars: x=1160..1680 (width 520)
+    Center of slots: (1160+1680)/2 = 1420 ✓
+  -->
+  <g id="examplePanel" opacity="0">
+    <rect x="1040" y="140" width="760" height="600" rx="20" fill="#151d30" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+    <text x="1420" y="190" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#e8ecf4">Example</text>
+
+    <!-- Sentence being processed -->
+    <text id="exSentence" x="1420" y="240" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="18" fill="#8892a8" opacity="0">
+      <tspan fill="#ef4444">She</tspan> went to... <tspan fill="#10b981">He</tspan> then...
+    </text>
+
+    <!-- Cell state slots -->
+    <text x="1100" y="330" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">subject</text>
+    <text x="1100" y="410" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">verb</text>
+    <text x="1100" y="490" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">object</text>
+
+    <!-- Subject slot: "She" in red, will be erased -->
+    <g id="slotSubjectShe">
+      <rect x="1220" y="304" width="380" height="40" rx="8" fill="#ef4444" opacity="0.2"/>
+      <text x="1410" y="332" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="600" fill="#ef4444">She</text>
+    </g>
+
+    <!-- Verb slot -->
+    <rect x="1220" y="384" width="380" height="40" rx="8" fill="#06b6d4" opacity="0.15"/>
+    <text x="1410" y="412" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" fill="#06b6d4" opacity="0.5">went</text>
+
+    <!-- Object slot -->
+    <rect x="1220" y="464" width="380" height="40" rx="8" fill="#8892a8" opacity="0.1"/>
+    <text x="1410" y="492" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="18" fill="#8892a8" opacity="0.4">...</text>
+
+    <!-- Forget gate acting: erasing "She" -->
+    <g id="forgetAction" opacity="0">
+      <!-- Strikethrough on "She" -->
+      <line x1="1360" y1="328" x2="1460" y2="328" stroke="#ef4444" stroke-width="3" opacity="0.8"/>
+      <!-- Forget gate label pointing at the slot -->
+      <text x="1410" y="370" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#ef4444">forget gate: 0.02</text>
+    </g>
+
+    <!-- New subject written (this will be used at the end, transitioning to input gate concept) -->
+    <g id="newSubjectPreview" opacity="0">
+      <rect x="1220" y="540" width="380" height="40" rx="8" fill="#10b981" opacity="0.2"/>
+      <text x="1410" y="568" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="600" fill="#10b981">He</text>
+      <text x="1410" y="600" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#8892a8">(written by input gate)</text>
+    </g>
+  </g>
+</g>
+
+<!-- Phase 1→2 cover -->
+<rect id="cover1to2" width="1920" height="1080" fill="#0b0f1a" opacity="0"/>
+
+<!-- ===== PHASE 2: INPUT GATE (Line 2, 6 sentences) =====
+
+  Layout:
+  - Left side: LSTM cell diagram with input gate highlighted (two parallel paths: sigmoid + tanh)
+  - Right side: Shows the subject replacement example continuing
+  
+  Same dimensions as phase 1 for consistency:
+  LSTM cell: x=120..920 (cx=520)
+  Example: x=1040..1800 (cx=1420)
+  Center: (120+1800)/2 = 960 ✓
+  
+  Inside the cell, input gate is TWO boxes side by side:
+    Sigmoid path: centered at x=440
+    Tanh path: centered at x=600
+    Both: y=340..500 (height=160)
+    Then they multiply together → add to cell state
+-->
+
+<g id="phase2" opacity="0">
+  <text x="960" y="90" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="20" font-weight="500" fill="#8892a8" opacity="0.6">2 / 3</text>
+
+  <!-- LSTM cell schematic -->
+  <g id="inputCellGroup">
+    <rect x="120" y="140" width="800" height="600" rx="20" fill="#151d30" stroke="#4a5568" stroke-width="2" opacity="0.4"/>
+    <text x="520" y="120" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="24" font-weight="600" fill="#8892a8">LSTM Cell</text>
+
+    <!-- Cell state path (top) — green -->
+    <line x1="80" y1="240" x2="160" y2="240" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+    <line x1="880" y1="240" x2="960" y2="240" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+    <line x1="180" y1="240" x2="860" y2="240" stroke="#10b981" stroke-width="3" stroke-dasharray="12 6" opacity="0.5"/>
+
+    <!-- Hidden state path (bottom) — cyan -->
+    <line x1="80" y1="640" x2="160" y2="640" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+    <line x1="880" y1="640" x2="960" y2="640" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+
+    <!-- Input x_t -->
+    <line x1="520" y1="800" x2="520" y2="760" stroke="#8892a8" stroke-width="2" marker-end="url(#arrowMuted)"/>
+  </g>
+
+  <!-- Input gate highlight label -->
+  <g id="inputGateLabel" opacity="0">
+    <text x="520" y="310" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="28" font-weight="700" fill="#10b981">Input Gate</text>
+  </g>
+
+  <!-- Two parallel paths -->
+  <!--
+    Sigmoid box: x=320, y=360, w=180, h=140, cx=410
+    Tanh box:    x=540, y=360, w=180, h=140, cx=630
+    Center of both: (320+720)/2 = 520 ✓
+  -->
+  <g id="inputSigmoidBox" opacity="0">
+    <rect x="320" y="360" width="180" height="140" rx="14" fill="#0b0f1a" stroke="#10b981" stroke-width="2.5"/>
+    <text x="410" y="420" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="28" fill="#10b981">\u03C3</text>
+    <text x="410" y="480" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#10b981" opacity="0.7">which to update</text>
+  </g>
+  <g id="inputTanhBox" opacity="0">
+    <rect x="540" y="360" width="180" height="140" rx="14" fill="#0b0f1a" stroke="#10b981" stroke-width="2.5" stroke-dasharray="8 4"/>
+    <text x="630" y="420" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="28" fill="#10b981">tanh</text>
+    <text x="630" y="480" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#10b981" opacity="0.7">candidate values</text>
+  </g>
+
+  <!-- Multiply circle between them → then add to cell state -->
+  <g id="inputMultiply" opacity="0">
+    <!-- Arrows from both boxes converge to multiply -->
+    <line x1="410" y1="510" x2="510" y2="560" stroke="#10b981" stroke-width="2"/>
+    <line x1="630" y1="510" x2="530" y2="560" stroke="#10b981" stroke-width="2"/>
+    <!-- Multiply symbol -->
+    <circle cx="520" cy="580" r="18" fill="#0b0f1a" stroke="#10b981" stroke-width="2.5"/>
+    <line x1="510" y1="570" x2="530" y2="590" stroke="#10b981" stroke-width="2.5"/>
+    <line x1="530" y1="570" x2="510" y2="590" stroke="#10b981" stroke-width="2.5"/>
+    <!-- Arrow up to cell state with + -->
+    <line x1="520" y1="560" x2="520" y2="270" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+    <!-- Plus symbol on cell state -->
+    <circle cx="520" cy="240" r="18" fill="#0b0f1a" stroke="#10b981" stroke-width="2.5"/>
+    <line x1="510" y1="240" x2="530" y2="240" stroke="#10b981" stroke-width="2.5"/>
+    <line x1="520" y1="230" x2="520" y2="250" stroke="#10b981" stroke-width="2.5"/>
+  </g>
+
+  <!-- Example panel (right side) — continuing from phase 1 -->
+  <g id="inputExamplePanel">
+    <rect x="1040" y="140" width="760" height="600" rx="20" fill="#151d30" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+    <text x="1420" y="190" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#e8ecf4">Cell State Update</text>
+
+    <!-- Before: "She" erased (from forget gate) -->
+    <g id="inputBefore" opacity="0">
+      <text x="1100" y="270" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">Before:</text>
+      <text x="1100" y="320" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">subject</text>
+      <rect x="1220" y="296" width="380" height="40" rx="8" fill="#ef4444" opacity="0.08"/>
+      <text x="1410" y="324" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="18" fill="#ef4444" opacity="0.3">
+        <tspan text-decoration="line-through">She</tspan>
+      </text>
+      <text x="1620" y="324" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#ef4444" opacity="0.5">(erased)</text>
+    </g>
+
+    <!-- After: "He" written in by input gate -->
+    <g id="inputAfter" opacity="0">
+      <text x="1100" y="440" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">After:</text>
+      <text x="1100" y="490" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">subject</text>
+      <rect x="1220" y="466" width="380" height="40" rx="8" fill="#10b981" opacity="0.2"/>
+      <text x="1410" y="494" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="600" fill="#10b981">He</text>
+      <text x="1620" y="494" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#10b981" opacity="0.7">(written)</text>
+    </g>
+
+    <!-- Summary arrows -->
+    <g id="inputSummaryArrows" opacity="0">
+      <!-- Forget gate arrow -->
+      <text x="1180" y="390" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#ef4444">forget gate erased old</text>
+      <!-- Downward arrow SVG -->
+      <line x1="1410" y1="350" x2="1410" y2="450" stroke="#8892a8" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrowMuted)"/>
+      <text x="1500" y="390" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#10b981">input gate writes new</text>
+    </g>
+  </g>
+
+  <!-- Neuron mascot (thinking expression, bottom-left) -->
+  <g id="mascotThinking" opacity="0" transform="translate(100, 880) scale(0.5)">
+    <line x1="100" y1="52" x2="100" y2="28" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="100" cy="22" r="6" fill="#8b5cf6" filter="url(#glowCyan)" class="mascot-antenna-2"/>
+    <!-- Pulse rings -->
+    <circle cx="100" cy="22" r="10" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0" class="pulse-ring-a"/>
+    <circle cx="100" cy="22" r="10" fill="none" stroke="#8b5cf6" stroke-width="1.5" opacity="0" class="pulse-ring-b"/>
+    <rect x="52" y="52" width="96" height="80" rx="20" fill="#151d30" stroke="#06b6d4" stroke-width="2.5"/>
+    <!-- Eyes looking up-right -->
+    <circle cx="82" cy="84" r="8" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+    <circle cx="85" cy="82" r="3" fill="#06b6d4"/>
+    <circle cx="126" cy="84" r="8" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+    <circle cx="129" cy="82" r="3" fill="#06b6d4"/>
+    <!-- Mouth small O -->
+    <circle cx="100" cy="114" r="5" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+    <path d="M68,140 L60,200 Q60,212 72,212 L128,212 Q140,212 140,200 L132,140 Z" fill="#151d30" stroke="#06b6d4" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="100" cy="172" r="6" fill="#8b5cf6" opacity="0.5" class="mascot-chest-2"/>
+    <!-- Arm to chin -->
+    <path d="M60,152 L36,160 L44,132" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <line x1="140" y1="152" x2="164" y2="172" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</g>
+
+<!-- Phase 2→3 cover -->
+<rect id="cover2to3" width="1920" height="1080" fill="#0b0f1a" opacity="0"/>
+
+<!-- ===== PHASE 3: OUTPUT GATE (Line 3, 5 sentences) =====
+
+  Layout:
+  - Left side: LSTM cell diagram with output gate highlighted
+  - Right side: Shows cell state → tanh → multiply by gate → h_t
+  
+  Same dimensions for consistency:
+  LSTM cell: x=120..920 (cx=520)
+  Detail panel: x=1040..1800 (cx=1420)
+  Center: (120+1800)/2 = 960 ✓
+  
+  Output gate in the cell:
+    Gate box: centered at (700, 420), size 200x140
+    Cell state → tanh → multiply by sigmoid output → h_t
+-->
+
+<g id="phase3" opacity="0">
+  <text x="960" y="90" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="20" font-weight="500" fill="#8892a8" opacity="0.6">3 / 3</text>
+
+  <!-- LSTM cell schematic -->
+  <g id="outputCellGroup">
+    <rect x="120" y="140" width="800" height="600" rx="20" fill="#151d30" stroke="#4a5568" stroke-width="2" opacity="0.4"/>
+    <text x="520" y="120" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="24" font-weight="600" fill="#8892a8">LSTM Cell</text>
+
+    <!-- Cell state path (top) — green -->
+    <line x1="80" y1="240" x2="160" y2="240" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+    <line x1="880" y1="240" x2="960" y2="240" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+    <line x1="180" y1="240" x2="860" y2="240" stroke="#10b981" stroke-width="3" stroke-dasharray="12 6" opacity="0.5"/>
+
+    <!-- Hidden state path (bottom) — cyan -->
+    <line x1="80" y1="640" x2="160" y2="640" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+    <line x1="880" y1="640" x2="960" y2="640" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+
+    <!-- Input x_t -->
+    <line x1="520" y1="800" x2="520" y2="760" stroke="#8892a8" stroke-width="2" marker-end="url(#arrowMuted)"/>
+  </g>
+
+  <!-- Output gate box -->
+  <g id="outputGateHighlight" opacity="0">
+    <rect x="420" y="380" width="200" height="140" rx="16" fill="#0b0f1a" stroke="#3b82f6" stroke-width="3"/>
+    <text x="520" y="435" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="28" font-weight="700" fill="#3b82f6">Output Gate</text>
+    <text x="520" y="490" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="32" fill="#3b82f6" opacity="0.8">\u03C3</text>
+  </g>
+
+  <!-- Right side: Processing pipeline detail -->
+  <!--
+    Shows: Cell state → tanh → multiply by sigmoid → h_t
+    
+    Pipeline layout (vertical stack on right panel):
+    Panel: x=1040..1800, y=140..780 (cx=1420)
+    
+    Cell state box: y=200, cx=1420
+    ↓
+    tanh box: y=340, cx=1420
+    ↓
+    multiply: y=480, cx=1420  (sigmoid feeds in from left)
+    ↓
+    h_t result: y=620, cx=1420
+  -->
+  <g id="outputDetailPanel">
+    <rect x="1040" y="140" width="760" height="700" rx="20" fill="#151d30" stroke="#8892a8" stroke-width="1.5" opacity="0.3"/>
+    <text x="1420" y="180" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#e8ecf4">Output Pipeline</text>
+
+    <!-- Cell state (full memory) -->
+    <g id="outputCellState" opacity="0">
+      <rect x="1280" y="210" width="280" height="60" rx="12" fill="#10b981" opacity="0.15"/>
+      <text x="1420" y="248" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" fill="#10b981">Cell State (full memory)</text>
+    </g>
+
+    <!-- Arrow down to tanh -->
+    <g id="outputToTanh" opacity="0">
+      <line x1="1420" y1="280" x2="1420" y2="320" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+    </g>
+
+    <!-- Tanh box -->
+    <g id="outputTanhBox" opacity="0">
+      <rect x="1340" y="330" width="160" height="70" rx="12" fill="#0b0f1a" stroke="#10b981" stroke-width="2.5"/>
+      <text x="1420" y="375" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="28" fill="#10b981">tanh</text>
+    </g>
+
+    <!-- Arrow down to multiply -->
+    <g id="outputTanhToMul" opacity="0">
+      <line x1="1420" y1="410" x2="1420" y2="460" stroke="#10b981" stroke-width="2"/>
+    </g>
+
+    <!-- Multiply symbol -->
+    <g id="outputMulSymbol" opacity="0">
+      <circle cx="1420" cy="490" r="22" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2.5"/>
+      <line x1="1408" y1="478" x2="1432" y2="502" stroke="#3b82f6" stroke-width="2.5"/>
+      <line x1="1432" y1="478" x2="1408" y2="502" stroke="#3b82f6" stroke-width="2.5"/>
+    </g>
+
+    <!-- Sigmoid output feeds in from left -->
+    <g id="outputSigmoidFeed" opacity="0">
+      <rect x="1120" y="460" width="160" height="60" rx="12" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2"/>
+      <text x="1200" y="498" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#3b82f6">\u03C3 output</text>
+      <line x1="1290" y1="490" x2="1390" y2="490" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    </g>
+
+    <!-- Arrow down to result -->
+    <g id="outputToResult" opacity="0">
+      <line x1="1420" y1="520" x2="1420" y2="580" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+    </g>
+
+    <!-- h_t result -->
+    <g id="outputResult" opacity="0">
+      <rect x="1280" y="590" width="280" height="70" rx="14" fill="#3b82f6" opacity="0.15" stroke="#3b82f6" stroke-width="2"/>
+      <text x="1420" y="620" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="24" fill="#3b82f6">h</text>
+      <text x="1436" y="628" font-family="'Instrument Serif',serif" font-style="italic" font-size="16" fill="#3b82f6">t</text>
+      <text x="1420" y="648" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#3b82f6" opacity="0.7">new hidden state</text>
+    </g>
+
+    <!-- "Not all relevant" annotation -->
+    <g id="outputFilterNote" opacity="0">
+      <text x="1650" y="380" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#8892a8">full memory</text>
+      <line x1="1640" y1="370" x2="1520" y2="365" stroke="#8892a8" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="1650" y="500" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#3b82f6">filters what's</text>
+      <text x="1650" y="520" text-anchor="start" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#3b82f6">relevant now</text>
+    </g>
+  </g>
+
+  <!-- Neuron mascot (happy, bottom-right, celebrating the complete picture) -->
+  <g id="mascotHappy" opacity="0" transform="translate(1760, 880) scale(0.5)">
+    <line x1="100" y1="52" x2="100" y2="28" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="100" cy="22" r="6" fill="#06b6d4" filter="url(#glowCyan)" class="mascot-antenna-3"/>
+    <rect x="52" y="52" width="96" height="80" rx="20" fill="#151d30" stroke="#06b6d4" stroke-width="2.5"/>
+    <!-- Happy eyes -->
+    <path d="M70,88 Q78,78 86,88" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M114,88 Q122,78 130,88" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Smile -->
+    <path d="M84,110 Q100,124 116,110" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M68,140 L60,200 Q60,212 72,212 L128,212 Q140,212 140,200 L132,140 Z" fill="#151d30" stroke="#06b6d4" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="100" cy="172" r="6" fill="#10b981" opacity="0.7" class="mascot-chest-3"/>
+    <!-- Arms raised -->
+    <line x1="60" y1="152" x2="32" y2="136" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="140" y1="152" x2="168" y2="136" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</g>
+
+</svg>
+
+<script>
+gsap.registerPlugin(MotionPathPlugin);
+
+const tl = gsap.timeline();
+
+// ===== PHASE 1: FORGET GATE (Line 1, 6 sentences) =====
+// Scene-relative times from timing map
+
+// S1 (0.000s): "The forget gate decides what to throw away from the cell state."
+tl.to("#forgetCellGroup", {opacity:1, duration:0.6, ease:"power2.out"}, 0);
+tl.to("#forgetGateHighlight", {opacity:1, duration:0.5, ease:"back.out(1.4)"}, 0.3);
+
+// S2 (3.460s): "It looks at the previous hidden state and the current input, and outputs a number between zero and one for each value in the cell state."
+tl.to("#forgetInputArrows", {opacity:1, duration:0.6, ease:"power2.out"}, 3.460);
+tl.to("#forgetMultiply", {opacity:1, duration:0.5, ease:"power2.out"}, 6.0);
+
+// S3 (11.970s): "Close to zero: forget this."
+tl.to("#forgetZero", {opacity:1, duration:0.4, ease:"back.out(1.3)"}, 11.970);
+
+// S4 (15.186s): "Close to one: keep it."
+tl.to("#forgetOne", {opacity:1, duration:0.4, ease:"back.out(1.3)"}, 15.186);
+
+// S5 (18.355s): "Reading a new subject in a sentence?"
+tl.to("#examplePanel", {opacity:1, duration:0.6, ease:"power2.out"}, 18.355);
+tl.to("#exSentence", {opacity:1, duration:0.4}, 18.8);
+
+// S6 (21.014s): "The forget gate might erase the old subject from memory."
+tl.to("#forgetAction", {opacity:1, duration:0.5, ease:"power2.out"}, 21.014);
+// Pulse the "She" slot fading out
+tl.to("#slotSubjectShe", {opacity:0.2, duration:1.0, ease:"power2.inOut"}, 21.5);
+
+// Fade out phase 1
+tl.to("#phase1", {opacity:0, duration:0.5}, 23.5);
+tl.to("#cover1to2", {opacity:1, duration:0.3}, 23.5);
+
+// ===== PHASE 2: INPUT GATE (Line 2, 6 sentences) =====
+
+// S1 (24.241s): "The input gate decides what new information to add."
+tl.to("#cover1to2", {opacity:0, duration:0.3}, 24.0);
+tl.to("#phase2", {opacity:1, duration:0.1}, 24.1);
+tl.to("#inputGateLabel", {opacity:1, duration:0.5, ease:"back.out(1.4)"}, 24.241);
+
+// S2 (27.643s): "It has two parts."
+// Show the two boxes appearing side by side
+tl.to("#inputSigmoidBox", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 27.643);
+tl.to("#inputTanhBox", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 27.9);
+
+// S3 (29.187s): "A sigmoid layer picks which values to update."
+// Highlight sigmoid box
+tl.to("#inputSigmoidBox rect", {stroke:"#10b981", strokeWidth:4, duration:0.3}, 29.187);
+tl.to("#inputSigmoidBox rect", {strokeWidth:2.5, duration:0.5}, 30.0);
+
+// S4 (32.692s): "A tanh layer creates candidate values to add."
+// Highlight tanh box
+tl.to("#inputTanhBox rect", {stroke:"#10b981", strokeWidth:4, duration:0.3}, 32.692);
+tl.to("#inputTanhBox rect", {strokeWidth:2.5, duration:0.5}, 33.5);
+
+// S5 (35.793s): "Multiply them together and add the result to the cell state."
+tl.to("#inputMultiply", {opacity:1, duration:0.7, ease:"power2.out"}, 35.793);
+// Show mascot thinking
+tl.to("#mascotThinking", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 36.5);
+
+// S6 (39.984s): "The old subject was erased by the forget gate, the new subject gets written in by the input gate."
+tl.to("#inputBefore", {opacity:1, duration:0.5, ease:"power2.out"}, 39.984);
+tl.to("#inputAfter", {opacity:1, duration:0.5, ease:"power2.out"}, 41.0);
+tl.to("#inputSummaryArrows", {opacity:1, duration:0.5, ease:"power2.out"}, 42.0);
+
+// Fade out phase 2
+tl.to("#phase2", {opacity:0, duration:0.5}, 44.8);
+tl.to("#cover2to3", {opacity:1, duration:0.3}, 44.8);
+
+// ===== PHASE 3: OUTPUT GATE (Line 3, 5 sentences) =====
+
+// S1 (45.638s): "The output gate decides what to actually output as the hidden state."
+tl.to("#cover2to3", {opacity:0, duration:0.3}, 45.3);
+tl.to("#phase3", {opacity:1, duration:0.1}, 45.4);
+tl.to("#outputGateHighlight", {opacity:1, duration:0.5, ease:"back.out(1.4)"}, 45.638);
+
+// S2 (49.911s): "The cell state holds the full memory, but not all of it is relevant right now."
+tl.to("#outputCellState", {opacity:1, duration:0.5, ease:"power2.out"}, 49.911);
+tl.to("#outputFilterNote", {opacity:1, duration:0.5}, 50.5);
+
+// S3 (54.195s): "The output gate filters it."
+// Pulse the output gate
+tl.to("#outputGateHighlight rect", {stroke:"#3b82f6", strokeWidth:5, duration:0.3}, 54.195);
+tl.to("#outputGateHighlight rect", {strokeWidth:3, duration:0.5}, 54.8);
+
+// S4 (56.366s): "Sigmoid picks which parts to expose, then the cell state goes through tanh and gets multiplied by the gate's output."
+tl.to("#outputToTanh", {opacity:1, duration:0.3}, 56.366);
+tl.to("#outputTanhBox", {opacity:1, duration:0.4, ease:"power2.out"}, 56.8);
+tl.to("#outputTanhToMul", {opacity:1, duration:0.3}, 57.5);
+tl.to("#outputMulSymbol", {opacity:1, duration:0.4, ease:"back.out(1.3)"}, 58.0);
+tl.to("#outputSigmoidFeed", {opacity:1, duration:0.5, ease:"power2.out"}, 58.5);
+
+// S5 (63.366s): "That becomes the new hidden state, and optionally the network's output for this step."
+tl.to("#outputToResult", {opacity:1, duration:0.3}, 63.366);
+tl.to("#outputResult", {opacity:1, duration:0.6, ease:"back.out(1.4)"}, 63.7);
+// Mascot happy at completion
+tl.to("#mascotHappy", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 64.5);
+
+// ===== AMBIENT ANIMATIONS =====
+
+// Phase 1: Forget gate pulse
+gsap.to("#forgetGateHighlight rect", {
+  opacity:0.8, duration:1.5, repeat:-1, yoyo:true, ease:"sine.inOut", delay:1.0
+});
+
+// Phase 2: Mascot thinking antenna pulse
+gsap.to(".mascot-antenna-2", {
+  attr:{r:8}, opacity:0.6, duration:1.5, repeat:-1, yoyo:true, ease:"sine.inOut", delay:36.5
+});
+gsap.to(".mascot-chest-2", {
+  opacity:0.8, attr:{r:8}, duration:2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:36.5
+});
+// Thinking pulse rings
+gsap.to(".pulse-ring-a", {
+  attr:{r:20}, opacity:0.3, duration:2, repeat:-1, yoyo:false, ease:"power1.out", delay:37,
+  repeatDelay:1
+});
+gsap.to(".pulse-ring-b", {
+  attr:{r:20}, opacity:0.3, duration:2, repeat:-1, yoyo:false, ease:"power1.out", delay:38,
+  repeatDelay:1
+});
+
+// Phase 3: Mascot happy antenna + chest
+gsap.to(".mascot-antenna-3", {
+  attr:{r:8}, opacity:0.6, duration:1.5, repeat:-1, yoyo:true, ease:"sine.inOut", delay:64.5
+});
+gsap.to(".mascot-chest-3", {
+  opacity:0.9, attr:{r:8}, duration:2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:64.5
+});
+</script>
+</body>
+</html>

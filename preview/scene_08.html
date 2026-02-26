@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scene 08 — LSTMs: Learning to Remember and Forget</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/MotionPathPlugin.min.js"></script>
+<style>
+:root{--bg:#0b0f1a;--surface:#151d30;--text:#e8ecf4;--muted:#8892a8;--dim:#4a5568;--accent:#f97316;--blue:#3b82f6;--purple:#8b5cf6;--red:#ef4444;--green:#10b981;--cyan:#06b6d4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;width:1920px;height:1080px;overflow:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");}
+</style>
+</head>
+<body>
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;top:0;left:0">
+<defs>
+  <filter id="glowSoft" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowCyan" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowAccent" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <filter id="glowBlue" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+  </filter>
+  <marker id="arrowCyan" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4"/>
+  </marker>
+  <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+  </marker>
+  <marker id="arrowMuted" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+    <polygon points="0 0, 10 3.5, 0 7" fill="#8892a8"/>
+  </marker>
+</defs>
+
+<!-- OBS background -->
+<rect width="1920" height="1080" fill="#0b0f1a"/>
+
+<!-- Subtle grid -->
+<g opacity="0.04">
+  <line x1="480" y1="0" x2="480" y2="1080" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="960" y1="0" x2="960" y2="1080" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="1440" y1="0" x2="1440" y2="1080" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="0" y1="360" x2="1920" y2="360" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="0" y1="540" x2="1920" y2="540" stroke="#e8ecf4" stroke-width="1"/>
+  <line x1="0" y1="720" x2="1920" y2="720" stroke="#e8ecf4" stroke-width="1"/>
+</g>
+
+<!-- ===== PHASE 1: PROBLEM STATEMENT & RNN vs LSTM ===== -->
+<!--
+  Layout plan for Phase 1 (sentences 1-6):
+  - Sentences 1-4: Crossmark over "Exploding" (green, fixed) and red X over "Vanishing"
+    Show two gradient labels side by side, visually conveying that exploding is fixable, vanishing isn't.
+    Centered horizontally.
+    
+  - Sentences 5-6: "LSTM" text reveal with year 1997.
+  
+  Phase 1 layout (problem statement):
+  Two panels centered on screen:
+  Left panel center: x=580, Right panel center: x=1340
+  Panel width: 500, height: 280
+  y center: 440 (panels from y=300 to y=580)
+  
+  Center check: (580-250 + 1340+250)/2 = (330 + 1590)/2 = 960 ✓
+-->
+
+<g id="phase1">
+  <!-- Left panel: Exploding Gradients — FIXED -->
+  <g id="explodingPanel" opacity="0">
+    <rect x="330" y="300" width="500" height="280" rx="16" fill="#151d30" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+    <text x="580" y="400" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="36" font-weight="600" fill="#e8ecf4">Exploding Gradients</text>
+    <!-- Checkmark SVG -->
+    <g id="explodingCheck" opacity="0" transform="translate(580, 490)">
+      <circle cx="0" cy="0" r="32" fill="none" stroke="#10b981" stroke-width="3"/>
+      <polyline points="-14,2 -4,12 16,-10" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text id="explodingFixLabel" x="580" y="548" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="500" fill="#10b981" opacity="0">Quick Fix</text>
+  </g>
+
+  <!-- Right panel: Vanishing Gradients — NO FIX -->
+  <g id="vanishingPanel" opacity="0">
+    <rect x="1090" y="300" width="500" height="280" rx="16" fill="#151d30" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
+    <text x="1340" y="400" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="36" font-weight="600" fill="#e8ecf4">Vanishing Gradients</text>
+    <!-- X mark SVG -->
+    <g id="vanishingX" opacity="0" transform="translate(1340, 490)">
+      <circle cx="0" cy="0" r="32" fill="none" stroke="#ef4444" stroke-width="3"/>
+      <line x1="-14" y1="-14" x2="14" y2="14" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+      <line x1="14" y1="-14" x2="-14" y2="14" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <text id="vanishingNoFixLabel" x="1340" y="548" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="500" fill="#ef4444" opacity="0">No Easy Fix</text>
+  </g>
+
+  <!-- "You need a different architecture" — emphasized text -->
+  <text id="needArchText" x="960" y="700" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="32" font-weight="500" fill="#f97316" opacity="0">You need a different architecture.</text>
+</g>
+
+<!-- Phase 1→2 cover -->
+<rect id="cover1to2" width="1920" height="1080" fill="#0b0f1a" opacity="0"/>
+
+<!-- ===== PHASE 2: LSTM REVEAL & RNN vs LSTM COMPARISON ===== -->
+<!--
+  Sentences 5-6: LSTM name reveal
+  Sentences 7-9: RNN cell vs LSTM cell comparison
+  
+  Layout:
+  - LSTM title and year: centered top area (y ~120-200)
+  - Below: Two cells side by side
+    Left: "Standard RNN" cell with single hidden state path
+    Right: "LSTM" cell with two paths (hidden state bottom, cell state top)
+  
+  RNN cell center: x=560, LSTM cell center: x=1360
+  Cell width: 520, height: 500
+  Cells y: 260 to 760 (cy=510)
+  
+  Center check: (560-260 + 1360+260)/2 = (300 + 1620)/2 = 960 ✓
+-->
+
+<g id="phase2" opacity="0">
+  <!-- LSTM Title -->
+  <text id="lstmTitle" x="960" y="130" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="48" font-weight="700" fill="#e8ecf4" opacity="0">Long Short-Term Memory</text>
+  <text id="lstmAcronym" x="960" y="180" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="28" font-weight="600" fill="#06b6d4" opacity="0">LSTM</text>
+  <text id="lstmYear" x="960" y="218" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" fill="#8892a8" opacity="0">Hochreiter &amp; Schmidhuber, 1997</text>
+
+  <!-- ===== Standard RNN Cell ===== -->
+  <g id="rnnCell" opacity="0">
+    <!-- Label -->
+    <text x="560" y="290" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="28" font-weight="600" fill="#8892a8">Standard RNN</text>
+    
+    <!-- Cell box -->
+    <rect x="360" y="380" width="400" height="240" rx="16" fill="#151d30" stroke="#8892a8" stroke-width="2.5"/>
+    
+    <!-- Single hidden state path — horizontal line through middle -->
+    <!-- h_{t-1} enters left, h_t exits right -->
+    <line x1="200" y1="500" x2="340" y2="500" stroke="#8892a8" stroke-width="2.5" marker-end="url(#arrowMuted)"/>
+    <line x1="780" y1="500" x2="900" y2="500" stroke="#8892a8" stroke-width="2.5" marker-end="url(#arrowMuted)"/>
+    
+    <!-- Inside: single processing block -->
+    <rect x="460" y="450" width="200" height="100" rx="12" fill="#0b0f1a" stroke="#8892a8" stroke-width="2"/>
+    <text x="560" y="508" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="28" fill="#8892a8">tanh</text>
+    
+    <!-- Input from below -->
+    <line x1="560" y1="720" x2="560" y2="640" stroke="#8892a8" stroke-width="2" marker-end="url(#arrowMuted)"/>
+    
+    <!-- Labels -->
+    <text x="200" y="480" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#8892a8">h</text>
+    <text x="215" y="488" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#8892a8">t-1</text>
+    <text x="910" y="480" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#8892a8">h</text>
+    <text x="920" y="488" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#8892a8">t</text>
+    <text x="560" y="752" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#8892a8">x</text>
+    <text x="572" y="760" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#8892a8">t</text>
+    
+    <!-- "Single path" annotation -->
+    <text id="singlePathLabel" x="560" y="340" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#ef4444" opacity="0">single hidden state path</text>
+  </g>
+
+  <!-- ===== LSTM Cell ===== -->
+  <g id="lstmCell" opacity="0">
+    <!-- Label -->
+    <text x="1360" y="290" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="28" font-weight="600" fill="#06b6d4">LSTM</text>
+    
+    <!-- Cell box -->
+    <rect x="1160" y="380" width="400" height="240" rx="16" fill="#151d30" stroke="#06b6d4" stroke-width="2.5"/>
+    
+    <!-- TOP PATH: Cell state (conveyor belt) — green -->
+    <g id="cellStatePath" opacity="0">
+      <line x1="1000" y1="420" x2="1140" y2="420" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+      <line x1="1580" y1="420" x2="1720" y2="420" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+      <!-- Conveyor belt dashes inside the cell -->
+      <line x1="1180" y1="420" x2="1540" y2="420" stroke="#10b981" stroke-width="3" stroke-dasharray="12 6" opacity="0.7"/>
+      
+      <!-- Cell state label -->
+      <text x="1000" y="400" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#10b981">C</text>
+      <text x="1014" y="408" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#10b981">t-1</text>
+      <text x="1730" y="400" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#10b981">C</text>
+      <text x="1742" y="408" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#10b981">t</text>
+    </g>
+    
+    <!-- BOTTOM PATH: Hidden state — cyan -->
+    <g id="hiddenStatePath">
+      <line x1="1000" y1="560" x2="1140" y2="560" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+      <line x1="1580" y1="560" x2="1720" y2="560" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+      
+      <!-- Hidden state label -->
+      <text x="1000" y="540" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#06b6d4">h</text>
+      <text x="1014" y="548" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#06b6d4">t-1</text>
+      <text x="1730" y="540" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#06b6d4">h</text>
+      <text x="1742" y="548" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#06b6d4">t</text>
+    </g>
+    
+    <!-- Input from below -->
+    <line x1="1360" y1="720" x2="1360" y2="640" stroke="#8892a8" stroke-width="2" marker-end="url(#arrowMuted)"/>
+    <text x="1360" y="752" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="22" fill="#8892a8">x</text>
+    <text x="1372" y="760" text-anchor="start" font-family="'Instrument Serif',serif" font-style="italic" font-size="14" fill="#8892a8">t</text>
+  </g>
+
+  <!-- Cell state label — "information highway" -->
+  <g id="conveyorLabel" opacity="0">
+    <text x="1360" y="340" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#10b981">cell state</text>
+    <!-- Draw a small highway icon: two parallel lines -->
+    <line x1="1290" y1="355" x2="1430" y2="355" stroke="#10b981" stroke-width="1.5" opacity="0.6"/>
+    <text x="1360" y="375" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#10b981" opacity="0.7">information highway</text>
+  </g>
+
+  <!-- Moving data dots on conveyor belt (ambient) -->
+  <g id="conveyorDots" opacity="0">
+    <circle class="dataDot" cx="1180" cy="420" r="4" fill="#10b981" opacity="0.8"/>
+    <circle class="dataDot" cx="1300" cy="420" r="4" fill="#10b981" opacity="0.6"/>
+    <circle class="dataDot" cx="1420" cy="420" r="4" fill="#10b981" opacity="0.4"/>
+  </g>
+
+  <!-- Neuron mascot (pointing expression, bottom-right corner) -->
+  <g id="mascotPointing" opacity="0" transform="translate(1760, 850) scale(0.55)">
+    <line x1="100" y1="52" x2="100" y2="28" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="100" cy="22" r="6" fill="#06b6d4" filter="url(#glowCyan)" class="mascot-antenna"/>
+    <rect x="52" y="52" width="96" height="80" rx="20" fill="#151d30" stroke="#06b6d4" stroke-width="2.5"/>
+    <!-- Eyes looking left (toward the LSTM cell) -->
+    <circle cx="78" cy="88" r="8" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+    <circle cx="74" cy="88" r="3" fill="#06b6d4"/>
+    <circle cx="122" cy="88" r="8" fill="none" stroke="#06b6d4" stroke-width="2.5"/>
+    <circle cx="118" cy="88" r="3" fill="#06b6d4"/>
+    <!-- Mouth small smile -->
+    <path d="M90,112 Q100,118 110,112" stroke="#06b6d4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Body -->
+    <path d="M68,140 L60,200 Q60,212 72,212 L128,212 Q140,212 140,200 L132,140 Z" fill="#151d30" stroke="#06b6d4" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="100" cy="172" r="6" fill="#06b6d4" opacity="0.5" class="mascot-chest"/>
+    <!-- Left arm pointing left -->
+    <line x1="60" y1="152" x2="20" y2="140" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="17" cy="139" r="3" fill="#06b6d4" filter="url(#glowCyan)"/>
+    <!-- Right arm resting -->
+    <line x1="140" y1="152" x2="164" y2="172" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</g>
+
+<!-- Phase 2→3 cover -->
+<rect id="cover2to3" width="1920" height="1080" fill="#0b0f1a" opacity="0"/>
+
+<!-- ===== PHASE 3: THREE GATES ===== -->
+<!--
+  Line 2, sentences 1-6: Gates appear on an LSTM cell diagram, sigmoid shown, labels.
+  
+  Layout:
+  Central LSTM cell enlarged, with three gate boxes shown on it.
+  
+  LSTM cell: centered, x=360..1560 (width=1200), y=200..700 (height=500)
+  Center check: (360+1560)/2 = 960 ✓
+  
+  Cell state top path: y=280
+  Hidden state bottom path: y=620
+  
+  Three gates positioned along the cell:
+  - Forget gate (red):  x center = 600,  y center = 450
+  - Input gate (green): x center = 960,  y center = 450
+  - Output gate (blue): x center = 1320, y center = 450
+  Gate box size: 200x140
+  
+  Sigmoid curve shown between gates (below or above)
+  
+  Center check for gates: (600-100 + 1320+100)/2 = (500+1420)/2 = 960 ✓
+-->
+
+<g id="phase3" opacity="0">
+  <!-- LSTM cell box (large) -->
+  <rect x="360" y="200" width="1200" height="500" rx="20" fill="#151d30" stroke="#06b6d4" stroke-width="2.5" opacity="0.6"/>
+  <text x="960" y="170" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="28" font-weight="600" fill="#06b6d4">LSTM Cell</text>
+
+  <!-- Cell state path (top) — green dashed line -->
+  <line x1="200" y1="280" x2="340" y2="280" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="1580" y1="280" x2="1720" y2="280" stroke="#10b981" stroke-width="3" marker-end="url(#arrowGreen)"/>
+  <line x1="380" y1="280" x2="1540" y2="280" stroke="#10b981" stroke-width="3" stroke-dasharray="12 6" opacity="0.6"/>
+  <text x="200" y="260" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#10b981">C</text>
+  <text x="1730" y="260" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#10b981">C</text>
+
+  <!-- Hidden state path (bottom) — cyan -->
+  <line x1="200" y1="620" x2="340" y2="620" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+  <line x1="1580" y1="620" x2="1720" y2="620" stroke="#06b6d4" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+  <text x="200" y="600" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#06b6d4">h</text>
+  <text x="1730" y="600" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="20" fill="#06b6d4">h</text>
+
+  <!-- Three gate boxes -->
+  <!-- Forget gate (red/accent) -->
+  <g id="forgetGateBox" opacity="0">
+    <rect x="500" y="380" width="200" height="140" rx="14" fill="#0b0f1a" stroke="#ef4444" stroke-width="2.5"/>
+    <text x="600" y="440" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#ef4444">Forget</text>
+    <text x="600" y="470" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#ef4444">Gate</text>
+    <!-- Sigmoid icon -->
+    <text x="600" y="505" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="18" fill="#ef4444" opacity="0.7">\u03C3</text>
+  </g>
+
+  <!-- Input gate (green) -->
+  <g id="inputGateBox" opacity="0">
+    <rect x="860" y="380" width="200" height="140" rx="14" fill="#0b0f1a" stroke="#10b981" stroke-width="2.5"/>
+    <text x="960" y="440" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#10b981">Input</text>
+    <text x="960" y="470" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#10b981">Gate</text>
+    <text x="960" y="505" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="18" fill="#10b981" opacity="0.7">\u03C3</text>
+  </g>
+
+  <!-- Output gate (blue) -->
+  <g id="outputGateBox" opacity="0">
+    <rect x="1220" y="380" width="200" height="140" rx="14" fill="#0b0f1a" stroke="#3b82f6" stroke-width="2.5"/>
+    <text x="1320" y="440" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#3b82f6">Output</text>
+    <text x="1320" y="470" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="600" fill="#3b82f6">Gate</text>
+    <text x="1320" y="505" text-anchor="middle" font-family="'Instrument Serif',serif" font-style="italic" font-size="18" fill="#3b82f6" opacity="0.7">\u03C3</text>
+  </g>
+
+  <!-- Sigmoid explanation panel (bottom center) -->
+  <g id="sigmoidPanel" opacity="0">
+    <rect x="660" y="780" width="600" height="220" rx="16" fill="#151d30" stroke="#8892a8" stroke-width="1.5" opacity="0.5"/>
+    
+    <!-- Sigmoid curve drawing -->
+    <!--
+      Sigmoid: f(x) = 1/(1+e^(-x))
+      Domain: x from -5 to 5, mapped to pixel x: 710..910 (width=200)
+      Range: y from 0 to 1, mapped to pixel y: 960..840 (height=120, inverted)
+      Center: px=810, py=900
+    -->
+    <polyline id="sigmoidCurve" fill="none" stroke="#f97316" stroke-width="3" stroke-linecap="round"
+      points="710,957 720,955 730,953 740,949 750,943 760,935 770,924 780,910 790,893 800,876 810,858 820,840 830,825 840,813 850,805 860,799 870,796 880,793 890,791 900,790 910,789" opacity="0"/>
+    
+    <!-- Axis labels -->
+    <text x="700" y="975" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">0</text>
+    <text x="920" y="975" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="16" fill="#8892a8">1</text>
+    <text x="810" y="828" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="14" fill="#8892a8">sigmoid output</text>
+    
+    <!-- Block / pass labels -->
+    <g id="blockLabel" opacity="0">
+      <rect x="960" y="850" width="260" height="50" rx="8" fill="#ef4444" opacity="0.15"/>
+      <text x="1090" y="882" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="600" fill="#ef4444">0 = block all</text>
+    </g>
+    <g id="passLabel" opacity="0">
+      <rect x="960" y="920" width="260" height="50" rx="8" fill="#10b981" opacity="0.15"/>
+      <text x="1090" y="952" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="20" font-weight="600" fill="#10b981">1 = pass all</text>
+    </g>
+  </g>
+
+  <!-- "The network learns when to open and close these gates" label -->
+  <text id="learnGatesLabel" x="960" y="760" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="22" font-weight="400" fill="#8892a8" opacity="0">The network learns when to open and close these gates during training</text>
+
+  <!-- Animated gate pulse indicators -->
+  <g id="gatePulses" opacity="0">
+    <circle cx="600" cy="450" r="70" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0" class="gate-pulse-forget"/>
+    <circle cx="960" cy="450" r="70" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0" class="gate-pulse-input"/>
+    <circle cx="1320" cy="450" r="70" fill="none" stroke="#3b82f6" stroke-width="1.5" opacity="0" class="gate-pulse-output"/>
+  </g>
+</g>
+
+</svg>
+
+<script>
+gsap.registerPlugin(MotionPathPlugin);
+
+const tl = gsap.timeline();
+
+// ===== PHASE 1: PROBLEM STATEMENT (Line 1, Sentences 1-4) =====
+
+// S1 (0.000s): "Exploding gradients have a quick fix."
+tl.to("#explodingPanel", {opacity:1, duration:0.6, ease:"power2.out"}, 0);
+tl.to("#explodingCheck", {opacity:1, duration:0.4, ease:"back.out(1.4)"}, 0.6);
+tl.to("#explodingFixLabel", {opacity:1, duration:0.3}, 1.0);
+
+// S2 (2.589s): "Vanishing gradients don't."
+tl.to("#vanishingPanel", {opacity:1, duration:0.6, ease:"power2.out"}, 2.589);
+tl.to("#vanishingX", {opacity:1, duration:0.4, ease:"back.out(1.4)"}, 3.2);
+tl.to("#vanishingNoFixLabel", {opacity:1, duration:0.3}, 3.6);
+
+// S3 (4.807s): "You can't just make small gradients bigger without knowing which ones matter."
+// Vanishing panel border pulses red to emphasize the problem
+tl.to("#vanishingPanel rect", {stroke:"#ef4444", strokeWidth:3, duration:0.3, ease:"power1.out"}, 4.807);
+tl.to("#vanishingPanel rect", {stroke:"#ef4444", strokeWidth:2, duration:0.8, ease:"sine.inOut"}, 5.5);
+// Slight shake on vanishing panel
+tl.to("#vanishingPanel", {x:4, duration:0.08, yoyo:true, repeat:5, ease:"power1.inOut"}, 4.807);
+
+// S4 (8.893s): "You need a different architecture."
+tl.to("#needArchText", {opacity:1, duration:0.5, ease:"power2.out"}, 8.893);
+
+// Fade out phase 1
+tl.to("#phase1", {opacity:0, duration:0.6}, 10.5);
+tl.to("#cover1to2", {opacity:1, duration:0.4}, 10.5);
+
+// ===== PHASE 2: LSTM REVEAL (Line 1, Sentences 5-9) =====
+
+// S5 (11.227s): "In nineteen ninety-seven, Hochreiter and Schmidhuber proposed the Long Short-Term Memory network."
+tl.to("#cover1to2", {opacity:0, duration:0.3}, 11.0);
+tl.to("#phase2", {opacity:1, duration:0.1}, 11.1);
+tl.to("#lstmTitle", {opacity:1, duration:0.8, ease:"power3.out"}, 11.227);
+tl.to("#lstmYear", {opacity:1, duration:0.5}, 12.5);
+
+// S6 (17.021s): "The LSTM."
+tl.to("#lstmAcronym", {opacity:1, duration:0.4, ease:"back.out(1.5)"}, 17.021);
+
+// S7 (19.691s): "Instead of one hidden state that gets overwritten at every step, the LSTM adds a second path: a cell state."
+// Show RNN cell first, then LSTM cell
+tl.to("#rnnCell", {opacity:1, duration:0.6, ease:"power2.out"}, 19.691);
+tl.to("#singlePathLabel", {opacity:1, duration:0.4}, 20.5);
+tl.to("#lstmCell", {opacity:1, duration:0.6, ease:"power2.out"}, 22.5);
+// Cell state path appears separately — the "second path"
+tl.to("#cellStatePath", {opacity:1, duration:0.8, ease:"power2.out"}, 24.0);
+
+// S8 (27.539s): "Think of it as a conveyor belt running above the network."
+tl.to("#conveyorLabel", {opacity:1, duration:0.5, ease:"power2.out"}, 27.539);
+tl.to("#conveyorDots", {opacity:1, duration:0.4}, 28.0);
+// Mascot appears pointing at the cell state
+tl.to("#mascotPointing", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 28.5);
+
+// S9 (31.580s): "Information can ride along it unchanged for many steps."
+// Data dots animate along the conveyor belt
+// (ambient motion starts here, handled below)
+
+// Fade out phase 2
+tl.to("#phase2", {opacity:0, duration:0.6}, 35.0);
+tl.to("#cover2to3", {opacity:1, duration:0.4}, 35.0);
+
+// ===== PHASE 3: THREE GATES (Line 2, Sentences 1-6) =====
+
+// S1 (35.852s): "The cell state is controlled by three gates."
+tl.to("#cover2to3", {opacity:0, duration:0.3}, 35.5);
+tl.to("#phase3", {opacity:1, duration:0.1}, 35.6);
+// All three gates appear with stagger
+tl.to("#forgetGateBox", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 35.852);
+tl.to("#inputGateBox", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 36.2);
+tl.to("#outputGateBox", {opacity:1, duration:0.5, ease:"back.out(1.3)"}, 36.55);
+
+// S2 (38.848s): "Gates are just sigmoid layers."
+tl.to("#sigmoidPanel", {opacity:1, duration:0.5, ease:"power2.out"}, 38.848);
+tl.to("#sigmoidCurve", {opacity:1, duration:0.8, ease:"power1.inOut"}, 39.0);
+
+// S3 (41.297s): "They output values between zero and one."
+// 0 and 1 labels on sigmoid are already visible; highlight the range
+tl.to("#sigmoidCurve", {stroke:"#f97316", strokeWidth:4, duration:0.3}, 41.297);
+tl.to("#sigmoidCurve", {strokeWidth:3, duration:0.5}, 42.0);
+
+// S4 (44.513s): "Zero means block everything."
+tl.to("#blockLabel", {opacity:1, duration:0.4, ease:"power2.out"}, 44.513);
+
+// S5 (47.033s): "One means let everything through."
+tl.to("#passLabel", {opacity:1, duration:0.4, ease:"power2.out"}, 47.033);
+
+// S6 (50.283s): "The network learns when to open and close these gates during training."
+tl.to("#learnGatesLabel", {opacity:1, duration:0.5, ease:"power2.out"}, 50.283);
+tl.to("#gatePulses", {opacity:1, duration:0.3}, 50.5);
+
+// ===== AMBIENT ANIMATIONS =====
+
+// Conveyor belt data dots moving right (phase 2, starts at S9: 31.580s)
+document.querySelectorAll(".dataDot").forEach(function(dot, i) {
+  gsap.to(dot, {
+    attr:{cx:"+=360"},
+    duration: 3,
+    repeat: -1,
+    ease: "none",
+    delay: i * 1.0 + 31.580
+  });
+  gsap.to(dot, {
+    opacity: 0,
+    duration: 0.5,
+    repeat: -1,
+    delay: i * 1.0 + 31.580 + 2.5,
+    repeatDelay: 2.5
+  });
+});
+
+// Mascot antenna pulse
+gsap.to(".mascot-antenna", {
+  attr:{r:8}, opacity:0.6, duration:1.5, repeat:-1, yoyo:true, ease:"sine.inOut", delay:28.5
+});
+// Mascot chest breathing
+gsap.to(".mascot-chest", {
+  opacity:0.8, attr:{r:8}, duration:2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:28.5
+});
+
+// Gate pulse animations (phase 3)
+gsap.to(".gate-pulse-forget", {
+  attr:{r:90}, opacity:0.4, duration:2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:50.5
+});
+gsap.to(".gate-pulse-input", {
+  attr:{r:90}, opacity:0.4, duration:2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:51.0
+});
+gsap.to(".gate-pulse-output", {
+  attr:{r:90}, opacity:0.4, duration:2, repeat:-1, yoyo:true, ease:"sine.inOut", delay:51.5
+});
+</script>
+</body>
+</html>
